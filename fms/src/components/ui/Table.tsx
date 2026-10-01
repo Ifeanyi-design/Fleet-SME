@@ -7,7 +7,8 @@ export function TableContainer({ className, ...props }: HTMLAttributes<HTMLDivEl
   return (
     <div
       className={cn(
-        'overflow-hidden rounded-card border border-hairline bg-surface shadow-card',
+        /* Elevated card container matching the modern dashboard look */
+        'overflow-hidden rounded-card border border-hairline/80 bg-surface shadow-md',
         className,
       )}
       {...props}
@@ -20,16 +21,30 @@ export function Table({ className, ...props }: HTMLAttributes<HTMLTableElement>)
 }
 
 export function THead({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
-  return <thead className={cn('bg-slate-50/70', className)} {...props} />;
+  return (
+    <thead
+      className={cn(
+        'border-b border-hairline bg-gradient-to-b from-slate-50 to-slate-50/50',
+        className,
+      )}
+      {...props}
+    />
+  );
 }
 
 export function TBody({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
-  return <tbody className={cn('divide-y divide-[#F1F2F4]', className)} {...props} />;
+  return <tbody className={cn('divide-y divide-hairline/70', className)} {...props} />;
 }
 
 export function TR({ className, ...props }: HTMLAttributes<HTMLTableRowElement>) {
   return (
-    <tr className={cn('transition-colors duration-150 hover:bg-gray-50/70', className)} {...props} />
+    <tr
+      className={cn(
+        'transition-colors duration-150 hover:bg-slate-50/80',
+        className,
+      )}
+      {...props}
+    />
   );
 }
 
@@ -38,7 +53,7 @@ export function TH({ className, ...props }: ThHTMLAttributes<HTMLTableCellElemen
     <th
       scope="col"
       className={cn(
-        'px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-ink-secondary',
+        'px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-ink-muted',
         className,
       )}
       {...props}
@@ -54,3 +69,4 @@ export function TD({ className, ...props }: TdHTMLAttributes<HTMLTableCellElemen
     />
   );
 }
+

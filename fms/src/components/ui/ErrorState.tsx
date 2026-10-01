@@ -25,21 +25,21 @@ export function ErrorState({
     <Card flush className={cn('overflow-hidden', className)}>
       <div
         role="alert"
-        className="flex flex-col items-center justify-center px-6 py-14 text-center"
+        className="flex flex-col items-center justify-center px-6 py-12 text-center"
       >
         <span
-          className="mb-4 grid size-12 place-items-center rounded-full bg-red-100 text-red-700"
+          className="mb-3.5 grid size-12 place-items-center rounded-full bg-red-50 text-red-600 ring-8 ring-red-50/50 shadow-xs"
           aria-hidden
         >
-          <AlertTriangle className="size-6" />
+          <AlertTriangle className="size-5" />
         </span>
-        <p className="text-sm font-semibold text-ink-primary">{title}</p>
-        <p className="mt-1 max-w-sm text-sm text-ink-secondary">{description}</p>
+        <p className="text-sm font-semibold tracking-tight text-ink-primary">{title}</p>
+        <p className="mt-1 max-w-sm text-[13px] leading-relaxed text-ink-secondary">{description}</p>
         {onRetry && (
           <Button
             variant="secondary"
-            className="mt-5"
-            leftIcon={<RotateCw className="size-4" />}
+            className="mt-4"
+            leftIcon={<RotateCw className="size-3.5" />}
             onClick={onRetry}
           >
             Try again
@@ -49,3 +49,4 @@ export function ErrorState({
     </Card>
   );
 }
+

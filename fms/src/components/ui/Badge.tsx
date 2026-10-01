@@ -5,13 +5,17 @@ import { cn } from '@/lib/cn';
 
 export type BadgeVariant = 'success' | 'warning' | 'info' | 'error' | 'neutral' | 'brand';
 
+/* ── Refined badge variants ────────────────────────────────────────────────────
+   Each variant now has an inset ring border (ring-1 ring-inset) that creates
+   a crisp edge between the pill and any background (inspired by NexaFleet & Quick Courier).
+*/
 const VARIANT: Record<BadgeVariant, string> = {
-  success: 'bg-brand-100 text-brand-700',
-  brand: 'bg-brand-100 text-brand-700',
-  warning: 'bg-amber-100 text-amber-700',
-  info: 'bg-blue-100 text-blue-700',
-  error: 'bg-red-100 text-red-700',
-  neutral: 'bg-gray-100 text-gray-500',
+  success: 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20',
+  brand:   'bg-brand-50 text-brand-700 ring-1 ring-inset ring-brand-600/20',
+  warning: 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20',
+  info:    'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/20',
+  error:   'bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20',
+  neutral: 'bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-500/10',
 };
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
@@ -24,14 +28,21 @@ export function Badge({ className, variant = 'neutral', dot = false, children, .
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium transition-colors duration-150',
+        'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[12px] font-medium tracking-tight',
+        'transition-colors duration-150',
         VARIANT[variant],
         className,
       )}
       {...props}
     >
-      {dot && <span className="size-1.5 rounded-full bg-current" aria-hidden />}
+      {dot && (
+        <span
+          className="size-1.5 rounded-full bg-current opacity-80"
+          aria-hidden
+        />
+      )}
       {children}
     </span>
   );
 }
+

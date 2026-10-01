@@ -16,7 +16,7 @@ export function RecentDeliveriesTable({ deliveries, loading = false }: RecentDel
       key: 'tracking',
       header: 'Waybill',
       cell: (d) => (
-        <span className="font-mono text-[13px] font-medium text-ink-primary">{d.trackingCode}</span>
+        <span className="font-mono text-[13px] font-bold tracking-tight text-ink-primary">{d.trackingCode}</span>
       ),
       mobileLabel: 'Waybill',
     },
@@ -25,7 +25,7 @@ export function RecentDeliveriesTable({ deliveries, loading = false }: RecentDel
       header: 'Customer',
       cell: (d) => (
         <div className="min-w-0">
-          <p className="truncate text-sm text-ink-primary">{d.customer?.name ?? '—'}</p>
+          <p className="truncate text-sm font-semibold text-ink-primary">{d.customer?.name ?? '—'}</p>
           <p className="truncate text-xs text-ink-muted">{d.dropoffAddress}</p>
         </div>
       ),
@@ -35,7 +35,7 @@ export function RecentDeliveriesTable({ deliveries, loading = false }: RecentDel
       key: 'driver',
       header: 'Driver',
       cell: (d) => (
-        <span className="text-[13px] text-ink-body">{d.driver?.fullName ?? 'Unassigned'}</span>
+        <span className="text-[13px] font-medium text-ink-body">{d.driver?.fullName ?? 'Unassigned'}</span>
       ),
       hideOnMobile: true,
     },

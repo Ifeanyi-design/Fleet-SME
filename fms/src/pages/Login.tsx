@@ -49,10 +49,10 @@ export function Login() {
   }
 
   return (
-    <Card className="p-6 sm:p-7">
+    <Card className="border border-hairline/90 bg-white/95 p-7 shadow-lg backdrop-blur-md sm:p-8">
       <div className="mb-6">
-        <h2 className="text-lg font-semibold tracking-tight text-ink-primary">Sign in</h2>
-        <p className="mt-0.5 text-[13px] text-ink-secondary">
+        <h2 className="text-xl font-bold tracking-tight text-ink-primary">Sign in</h2>
+        <p className="mt-1 text-[13px] text-ink-secondary">
           Enter your credentials to access the operations console.
         </p>
       </div>
@@ -60,7 +60,7 @@ export function Login() {
       {error && (
         <div
           role="alert"
-          className="mb-5 flex items-start gap-2.5 rounded-control border border-red-200 bg-red-50 px-3.5 py-3 text-[13px] text-red-700"
+          className="mb-5 flex items-start gap-2.5 rounded-control border border-red-200 bg-red-50/80 p-3.5 text-[13px] text-red-700 shadow-xs"
         >
           <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
           <span>{error}</span>
@@ -107,14 +107,16 @@ export function Login() {
           size="lg"
           loading={submitting}
           leftIcon={<LogIn className="size-4" />}
+          className="mt-2"
         >
           Sign in
         </Button>
       </form>
 
-      <p className="mt-6 border-t border-hairline pt-5 text-center text-xs text-ink-muted">
+      <p className="mt-6 border-t border-hairline/80 pt-5 text-center text-xs text-ink-muted">
         Access is restricted to authorised fleet personnel.
       </p>
     </Card>
   );
 }
+

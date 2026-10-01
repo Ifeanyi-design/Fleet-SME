@@ -28,11 +28,11 @@ export function Pagination({
   return (
     <div
       className={cn(
-        'flex items-center justify-between gap-3 border-t border-hairline px-4 py-3',
+        'flex items-center justify-between gap-3 border-t border-hairline/80 bg-slate-50/40 px-4 py-3',
         className,
       )}
     >
-      <p className="text-xs text-ink-secondary">
+      <p className="text-xs font-medium text-ink-muted">
         {from !== undefined && to !== undefined && total !== undefined
           ? `Showing ${from}–${to} of ${total}`
           : `Page ${page} of ${pageCount}`}
@@ -47,8 +47,8 @@ export function Pagination({
         >
           <ChevronLeft className="size-4" />
         </IconButton>
-        <span className="min-w-[3rem] text-center text-xs font-medium tabular-nums text-ink-body">
-          {page} / {pageCount}
+        <span className="min-w-[3rem] text-center text-xs font-semibold tabular-nums text-ink-primary">
+          {page} <span className="font-normal text-ink-muted">/</span> {pageCount}
         </span>
         <IconButton
           label="Next page"
@@ -63,3 +63,4 @@ export function Pagination({
     </div>
   );
 }
+

@@ -13,9 +13,9 @@ const STEPS: { status: DeliveryStatus; label: string }[] = [
 export function DeliveryLifecycleStepper({ status }: { status: DeliveryStatus }) {
   if (status === 'cancelled') {
     return (
-      <span className="inline-flex items-center gap-2 text-[13px] text-ink-muted">
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-ink-muted">
         <span className="size-1.5 rounded-full bg-gray-400" aria-hidden />
-        Cancelled — no further transitions
+        Cancelled
       </span>
     );
   }
@@ -31,25 +31,25 @@ export function DeliveryLifecycleStepper({ status }: { status: DeliveryStatus })
           <li key={step.status} className="flex items-center gap-1.5">
             {index > 0 && (
               <span
-                className={cn('h-px w-4', done || current ? 'bg-brand-500' : 'bg-hairline-strong')}
+                className={cn('h-[2px] w-3 rounded-full', done || current ? 'bg-brand-500' : 'bg-hairline-strong')}
                 aria-hidden
               />
             )}
-            <span className="inline-flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-1">
               <span
                 className={cn(
-                  'grid size-5 shrink-0 place-items-center rounded-full text-[10px] font-semibold',
+                  'grid size-4.5 shrink-0 place-items-center rounded-full text-[10px] font-bold transition-all shadow-xs',
                   done && 'bg-brand-600 text-white',
-                  current && 'bg-brand-600 text-white ring-4 ring-brand-500/20',
-                  !done && !current && 'border border-hairline-strong bg-white text-ink-muted',
+                  current && 'bg-brand-600 text-white ring-3 ring-brand-500/25',
+                  !done && !current && 'border border-hairline-strong bg-slate-50 text-ink-muted',
                 )}
                 aria-hidden
               >
-                {done ? <Check className="size-3" /> : index + 1}
+                {done ? <Check className="size-2.5 stroke-[2.5]" /> : index + 1}
               </span>
               <span
                 className={cn(
-                  'text-[13px]',
+                  'text-[12px] tracking-tight',
                   current ? 'font-semibold text-ink-primary' : 'text-ink-secondary',
                 )}
               >
@@ -62,3 +62,4 @@ export function DeliveryLifecycleStepper({ status }: { status: DeliveryStatus })
     </ol>
   );
 }
+

@@ -8,12 +8,12 @@ export type IconButtonSize = 'sm' | 'md';
 
 const VARIANT: Record<IconButtonVariant, string> = {
   ghost: 'text-ink-secondary hover:bg-surface-hover hover:text-ink-primary',
-  outline: 'border border-hairline-strong bg-white text-ink-body hover:bg-surface-hover',
+  outline: 'border border-hairline-strong/80 bg-white text-ink-body shadow-xs hover:border-hairline-hover hover:bg-surface-hover hover:text-ink-primary hover:shadow-sm',
 };
 
 const SIZE: Record<IconButtonSize, string> = {
-  sm: 'size-9',
-  md: 'size-10',
+  sm: 'size-8 rounded-[8px]',
+  md: 'size-9 rounded-control',
 };
 
 export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -33,9 +33,9 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(functio
       aria-label={label}
       title={label}
       className={cn(
-        'inline-grid place-items-center rounded-control transition-colors duration-150',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:ring-offset-1 focus-visible:ring-offset-white',
-        'disabled:pointer-events-none disabled:opacity-50',
+        'inline-grid place-items-center transition-all duration-150 active:scale-[0.95]',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/30 focus-visible:ring-offset-1 focus-visible:ring-offset-white',
+        'disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none',
         VARIANT[variant],
         SIZE[size],
         className,
@@ -46,3 +46,4 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(functio
     </button>
   );
 });
+

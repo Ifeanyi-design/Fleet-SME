@@ -27,12 +27,12 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
         ref={ref}
         aria-invalid={invalid || undefined}
         className={cn(
-          'h-10 w-full appearance-none rounded-control border bg-white px-3.5 pr-9 text-sm text-ink-primary shadow-xs',
-          'transition-colors duration-150 focus:outline-none focus:ring-2',
+          'h-9 w-full appearance-none rounded-control border bg-white px-3.5 pr-9 text-sm text-ink-primary shadow-[0_1px_2px_rgba(15,23,42,0.04)]',
+          'transition-all duration-150 focus:outline-none focus:ring-2',
           invalid
-            ? 'border-red-400 focus:border-red-500 focus:ring-red-500/25'
-            : 'border-hairline-strong focus:border-brand-500 focus:ring-brand-500/25',
-          'disabled:cursor-not-allowed disabled:bg-surface-hover disabled:text-ink-muted',
+            ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
+            : 'border-hairline-strong/80 hover:border-hairline-hover focus:border-brand-500 focus:ring-brand-500/20',
+          'disabled:cursor-not-allowed disabled:bg-surface-sunken disabled:text-ink-disabled disabled:shadow-none',
           className,
         )}
         {...props}
@@ -44,7 +44,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
         ))}
       </select>
       <ChevronDown
-        className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted"
+        className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted transition-colors"
         aria-hidden
       />
     </div>

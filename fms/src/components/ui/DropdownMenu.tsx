@@ -77,7 +77,7 @@ export function DropdownMenu({
             exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className={cn(
-              'absolute z-40 mt-2 min-w-[11rem] overflow-hidden rounded-panel border border-hairline bg-surface py-1 shadow-pop',
+              'absolute z-40 mt-1.5 min-w-[11rem] overflow-hidden rounded-card border border-hairline/90 bg-white/95 p-1 shadow-pop backdrop-blur-md',
               align === 'right' ? 'right-0' : 'left-0',
             )}
             onClick={(e) => e.stopPropagation()}
@@ -93,16 +93,18 @@ export function DropdownMenu({
                   item.onSelect();
                 }}
                 className={cn(
-                  'flex w-full items-center justify-between gap-3 px-3.5 py-2 text-left text-[13px] transition-colors',
+                  'flex w-full items-center justify-between gap-3 rounded-[8px] px-3 py-2 text-left text-[13px] font-medium transition-all duration-150',
                   item.disabled
                     ? 'cursor-not-allowed text-ink-disabled'
                     : item.danger
                       ? 'text-state-error hover:bg-red-50'
-                      : 'text-ink-body hover:bg-surface-hover',
+                      : item.selected
+                        ? 'bg-brand-50/70 text-brand-800 font-semibold'
+                        : 'text-ink-body hover:bg-surface-hover hover:text-ink-primary',
                 )}
               >
-                {item.label}
-                {item.selected && <Check className="size-3.5 text-brand-600" aria-hidden />}
+                <span>{item.label}</span>
+                {item.selected && <Check className="size-3.5 text-brand-600 stroke-[2.5]" aria-hidden />}
               </button>
             ))}
           </motion.div>
@@ -111,3 +113,4 @@ export function DropdownMenu({
     </div>
   );
 }
+

@@ -130,7 +130,7 @@ Provisioned automatically on first boot. **Two administrators and one login per 
 
 | Name          | Email                   | Password     |
 | ------------- | ----------------------- | ------------ |
-| Ifeanyi Agada | c                       | `Fleet@2026` |
+| Ifeanyi Agada | `manage@fleetsme.com`   | `Fleet@2026` |
 | Ngozi Okonkwo | `dispatch@fleetsme.com` | `Fleet@2026` |
 
 ### Drivers — mobile app only, scoped to their own waybills
@@ -203,20 +203,20 @@ directly.
 
 ## Troubleshooting
 
-| Symptom                                           | Cause                                                        | Fix                                                                            |
-| ------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| Symptom                                           | Cause                                                                                                             | Fix                                                                            |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | **Login rejects the credentials in this guide**   | **The database was seeded before these accounts existed. The original seeder only ran against an empty database** | **Redeploy — account provisioning now runs on every boot. No data is lost**    |
-| Login fails, console shows a **CORS** error       | `CORS_ORIGINS` on the API does not match the frontend URL    | Set it exactly, including `https://`, no trailing slash                        |
-| App loads but every request **404s**              | `VITE_API_URL` missing or lacks `/api`                       | Set it and let the static site rebuild                                         |
-| Refreshing `/vehicles` shows Render's 404 page    | SPA rewrite missing                                          | Already in `render.yaml`; confirm the static site has the rewrite route        |
-| `Can't load plugin: sqlalchemy.dialects:postgres` | Render hands out `postgres://`, which SQLAlchemy 2.x rejects | Already handled — `config.py` rewrites it to `postgresql+psycopg2://`          |
-| Data resets after every deploy                    | Still on SQLite                                              | Confirm `DATABASE_URL` is set on the API service                               |
-| Build fails on `psycopg2`                         | Missing build tools                                          | The blueprint uses `psycopg2-binary`, which ships wheels — check the build log |
-| First request hangs ~40s                          | Free tier spin-down                                          | Expected; see above                                                            |
+| Login fails, console shows a **CORS** error       | `CORS_ORIGINS` on the API does not match the frontend URL                                                         | Set it exactly, including `https://`, no trailing slash                        |
+| App loads but every request **404s**              | `VITE_API_URL` missing or lacks `/api`                                                                            | Set it and let the static site rebuild                                         |
+| Refreshing `/vehicles` shows Render's 404 page    | SPA rewrite missing                                                                                               | Already in `render.yaml`; confirm the static site has the rewrite route        |
+| `Can't load plugin: sqlalchemy.dialects:postgres` | Render hands out `postgres://`, which SQLAlchemy 2.x rejects                                                      | Already handled — `config.py` rewrites it to `postgresql+psycopg2://`          |
+| Data resets after every deploy                    | Still on SQLite                                                                                                   | Confirm `DATABASE_URL` is set on the API service                               |
+| Build fails on `psycopg2`                         | Missing build tools                                                                                               | The blueprint uses `psycopg2-binary`, which ships wheels — check the build log |
+| First request hangs ~40s                          | Free tier spin-down                                                                                               | Expected; see above                                                            |
 
 ### Already deployed and login is failing?
 
-If you deployed before the accounts were finalised, the database still holds the original
+If you deployed before the accounts were finalised, the database still holds the original  
 development logins, and no amount of redeploying used to fix it — the seeder only ran once.
 
 That is fixed. The API now reconciles accounts on **every** start:
@@ -229,6 +229,9 @@ That is fixed. The API now reconciles accounts on **every** start:
 [accounts] provisioned driver musa.ibrahim@fleetsme.com
 ...
 ```
+
+
+````
 
 It creates whatever is missing, never touches existing accounts (passwords are not reset), and
 retires the old development logins whose passwords are published in this repository. **Your data is
@@ -249,7 +252,7 @@ cd fms/backend
 export DATABASE_URL="postgresql://fms:fms@localhost:5432/fms"
 .venv/Scripts/pip install -r requirements.txt
 .venv/Scripts/python app.py
-```
+````
 
 Everything else is identical — `config.py` normalises the URL and the seeding is the same.
 

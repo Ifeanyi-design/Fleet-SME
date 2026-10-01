@@ -85,7 +85,7 @@ export function AllocationPanel({
 
   if (!delivery) {
     return (
-      <Card flush className="flex h-full items-center justify-center">
+      <Card flush className="flex h-full items-center justify-center p-8">
         <EmptyState
           icon={<PackageSearch className="size-6" />}
           title="Select an order to allocate"
@@ -105,28 +105,30 @@ export function AllocationPanel({
       </div>
 
       {/* Selected order summary */}
-      <div className="rounded-control border border-hairline bg-surface-sunken p-4">
-        <div className="flex items-center justify-between gap-3">
-          <span className="font-mono text-[13px] font-semibold text-ink-primary">
+      <div className="rounded-control border border-hairline/90 bg-gradient-to-b from-slate-50/80 to-slate-50/30 p-4 shadow-xs">
+        <div className="flex items-center justify-between gap-3 border-b border-hairline pb-2.5">
+          <span className="font-mono text-[13px] font-bold tracking-tight text-ink-primary">
             {delivery.trackingCode}
           </span>
-          <span className="text-xs text-ink-muted">{delivery.customer?.name}</span>
+          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-ink-secondary">
+            {delivery.customer?.name}
+          </span>
         </div>
         <dl className="mt-3 space-y-2 text-[13px]">
           <div className="flex gap-2">
-            <dt className="w-16 shrink-0 text-ink-muted">Pickup</dt>
-            <dd className="text-ink-body">{delivery.pickupAddress}</dd>
+            <dt className="w-16 shrink-0 text-xs font-medium uppercase tracking-wider text-ink-muted">Pickup</dt>
+            <dd className="text-ink-body font-medium">{delivery.pickupAddress}</dd>
           </div>
           <div className="flex gap-2">
-            <dt className="w-16 shrink-0 text-ink-muted">Drop-off</dt>
-            <dd className="text-ink-body">{delivery.dropoffAddress}</dd>
+            <dt className="w-16 shrink-0 text-xs font-medium uppercase tracking-wider text-ink-muted">Drop-off</dt>
+            <dd className="text-ink-body font-medium">{delivery.dropoffAddress}</dd>
           </div>
         </dl>
-        <ul className="mt-3 space-y-1 border-t border-hairline pt-3">
+        <ul className="mt-3 space-y-1.5 border-t border-hairline pt-3">
           {delivery.items.map((item) => (
             <li key={item.productId} className="flex justify-between text-xs text-ink-secondary">
-              <span>{item.product?.productName ?? `Product #${item.productId}`}</span>
-              <span className="tabular-nums">×{item.quantity}</span>
+              <span className="font-medium text-ink-body">{item.product?.productName ?? `Product #${item.productId}`}</span>
+              <span className="font-semibold tabular-nums text-ink-primary">×{item.quantity}</span>
             </li>
           ))}
         </ul>
@@ -135,14 +137,14 @@ export function AllocationPanel({
       {conflict && (
         <div
           role="alert"
-          className="mt-4 flex items-start gap-2.5 rounded-control border border-red-200 bg-red-50 px-3.5 py-3 text-[13px] text-red-700"
+          className="mt-4 flex items-start gap-2.5 rounded-control border border-red-200 bg-red-50/80 p-3.5 text-[13px] text-red-700 shadow-xs"
         >
           <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
           <span>{conflict}</span>
         </div>
       )}
 
-      <div className="mt-4 space-y-4">
+      <div className="mt-5 space-y-4">
         <ResourceSelector
           label="Driver"
           htmlFor="assignDriver"
@@ -167,9 +169,10 @@ export function AllocationPanel({
         />
       </div>
 
-      <div className="mt-auto flex items-center gap-2.5 border-t border-hairline pt-4">
+      <div className="mt-auto flex items-center gap-2.5 border-t border-hairline pt-5">
         <Button
           fullWidth
+          size="lg"
           onClick={handleConfirm}
           loading={assign.isPending}
           disabled={!canConfirm}
@@ -180,9 +183,10 @@ export function AllocationPanel({
       </div>
 
       <p className="mt-3 flex items-center gap-1.5 text-[11px] text-ink-muted">
-        <CheckCircle2 className="size-3.5" aria-hidden />
+        <CheckCircle2 className="size-3.5 text-brand-600" aria-hidden />
         Availability is re-verified before the assignment is committed.
       </p>
     </Card>
   );
 }
+

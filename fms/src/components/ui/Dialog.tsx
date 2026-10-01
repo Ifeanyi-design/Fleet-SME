@@ -100,7 +100,7 @@ export function Dialog({
       {open && (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
           <motion.div
-            className="absolute inset-0 bg-slate-900/45 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-slate-950/40 backdrop-blur-[4px]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -116,7 +116,7 @@ export function Dialog({
             aria-labelledby={titleId}
             aria-describedby={description ? descriptionId : undefined}
             className={cn(
-              'relative z-10 flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-panel bg-surface shadow-pop sm:rounded-panel',
+              'relative z-10 flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-panel border border-hairline/90 bg-white shadow-pop sm:rounded-panel',
               SIZE[size],
             )}
             initial={{ opacity: 0, scale: 0.98, y: 8 }}
@@ -124,9 +124,9 @@ export function Dialog({
             exit={{ opacity: 0, scale: 0.98, y: 8 }}
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="flex items-start justify-between gap-4 border-b border-hairline px-5 py-4">
+            <div className="flex items-start justify-between gap-4 border-b border-hairline/80 bg-slate-50/30 px-6 py-4">
               <div className="min-w-0">
-                <h2 id={titleId} className="text-base font-semibold tracking-[-0.01em] text-ink-primary">
+                <h2 id={titleId} className="text-base font-bold tracking-tight text-ink-primary">
                   {title}
                 </h2>
                 {description && (
@@ -137,15 +137,15 @@ export function Dialog({
               </div>
               {dismissible && (
                 <IconButton label="Close dialog" onClick={onClose}>
-                  <X className="size-5" />
+                  <X className="size-4" />
                 </IconButton>
               )}
             </div>
 
-            <div className="flex-1 overflow-y-auto px-5 py-5">{children}</div>
+            <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
 
             {footer && (
-              <div className="flex items-center justify-end gap-2.5 border-t border-hairline bg-surface-sunken px-5 py-4">
+              <div className="flex items-center justify-end gap-2.5 border-t border-hairline/80 bg-slate-50/70 px-6 py-3.5">
                 {footer}
               </div>
             )}
@@ -156,3 +156,4 @@ export function Dialog({
     document.body,
   );
 }
+

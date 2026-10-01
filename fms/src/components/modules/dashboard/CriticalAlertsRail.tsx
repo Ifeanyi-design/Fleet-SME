@@ -62,22 +62,42 @@ export function CriticalAlertsRail({ metrics, loading = false }: CriticalAlertsR
     }
   }
 
+  const hasErrors = alerts.some((a) => a.badge.variant === 'error');
+
   return (
-    <Card className="flex h-full flex-col">
-      <div className="mb-4">
-        <CardTitle>Critical alerts</CardTitle>
-        <CardDescription>Preventive service &amp; licence compliance</CardDescription>
+    <Card className="flex flex-col overflow-hidden">
+      {/* ── Header with dynamic count badge ──────────────────────────────────── */}
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <CardTitle>Critical alerts</CardTitle>
+            {!loading && alerts.length > 0 && (
+              <span
+                className={cn(
+                  'rounded-full px-2 py-0.5 text-[11px] font-bold tabular-nums ring-1 ring-inset shadow-xs',
+                  hasErrors
+                    ? 'bg-red-50 text-red-700 ring-red-600/20'
+                    : 'bg-amber-50 text-amber-700 ring-amber-600/20',
+                )}
+              >
+                {alerts.length}
+              </span>
+            )}
+          </div>
+          <CardDescription>Preventive service &amp; licence compliance</CardDescription>
+        </div>
       </div>
 
       {loading ? (
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-14 w-full" />
+            <Skeleton key={i} className="h-16 w-full" />
           ))}
         </div>
       ) : alerts.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center py-8 text-center">
-          <span className="mb-3 grid size-12 place-items-center rounded-full bg-brand-100 text-brand-700">
+          {/* All-clear state: gradient circle for a more premium feel */}
+          <span className="mb-3 grid size-12 place-items-center rounded-full bg-gradient-to-br from-brand-50 to-brand-100 text-brand-700 shadow-xs ring-4 ring-brand-500/10">
             <ShieldCheck className="size-6" aria-hidden />
           </span>
           <p className="text-sm font-semibold text-ink-primary">All clear</p>
@@ -86,37 +106,44 @@ export function CriticalAlertsRail({ metrics, loading = false }: CriticalAlertsR
           </p>
         </div>
       ) : (
-        <ul className="-mx-1 space-y-1">
+        /* ── Bounded scrollable list prevents container blowouts ────────────── */
+        <ul className="-mr-1 max-h-[19rem] space-y-2 overflow-y-auto pr-1">
           {alerts.map((alert) => (
             <li key={alert.id}>
               <button
                 type="button"
                 onClick={() => navigate(alert.to)}
                 className={cn(
-                  'flex w-full items-start gap-3 rounded-control px-2 py-2.5 text-left transition-colors duration-150',
-                  'hover:bg-surface-hover',
+                  'group flex w-full flex-col rounded-control border p-3 text-left transition-all duration-150 shadow-xs',
+                  alert.badge.variant === 'error'
+                    ? 'border-red-200/80 bg-red-50/30 hover:border-red-300 hover:bg-red-50/60'
+                    : 'border-amber-200/80 bg-amber-50/30 hover:border-amber-300 hover:bg-amber-50/60',
                 )}
               >
-                <span
-                  className={cn(
-                    'mt-0.5 grid size-8 shrink-0 place-items-center rounded-chip',
-                    alert.badge.variant === 'error'
-                      ? 'bg-red-100 text-red-700'
-                      : 'bg-amber-100 text-amber-700',
-                  )}
-                  aria-hidden
-                >
-                  <alert.icon className="size-4" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] font-medium text-ink-primary">
-                    {alert.title}
-                  </span>
-                  <span className="block truncate text-xs text-ink-secondary">{alert.detail}</span>
-                </span>
-                <Badge variant={alert.badge.variant} className="shrink-0">
-                  {alert.badge.label}
-                </Badge>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span
+                      className={cn(
+                        'grid size-6 shrink-0 place-items-center rounded-md shadow-2xs',
+                        alert.badge.variant === 'error'
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-amber-100 text-amber-700',
+                      )}
+                      aria-hidden
+                    >
+                      <alert.icon className="size-3.5" />
+                    </span>
+                    <span className="truncate text-[13px] font-bold text-ink-primary group-hover:text-ink-primary">
+                      {alert.title}
+                    </span>
+                  </div>
+                  <Badge variant={alert.badge.variant} className="shrink-0 text-[11px] px-2 py-0.5">
+                    {alert.badge.label}
+                  </Badge>
+                </div>
+                <p className="mt-1.5 pl-8 text-xs text-ink-secondary truncate">
+                  {alert.detail}
+                </p>
               </button>
             </li>
           ))}
@@ -125,3 +152,4 @@ export function CriticalAlertsRail({ metrics, loading = false }: CriticalAlertsR
     </Card>
   );
 }
+

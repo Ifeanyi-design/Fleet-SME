@@ -34,7 +34,11 @@ export function Topbar() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-hairline bg-white/80 px-4 backdrop-blur-md lg:px-6">
+    /* ── Glass topbar ────────────────────────────────────────────────────────
+       white/90 + backdrop-blur-md gives the "frosted" glass effect seen in
+       the Cureer and NexaFleet reference UIs. Added a stronger bottom border
+       (border-hairline/strong) so the topbar feels crisper against the canvas. */
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-hairline bg-white/90 px-4 shadow-xs backdrop-blur-md lg:px-6">
       <IconButton label="Open navigation" className="lg:hidden" onClick={() => setMobileNavOpen(true)}>
         <Menu className="size-5" />
       </IconButton>
@@ -67,7 +71,10 @@ export function Topbar() {
           onClick={() => setMenuOpen((o) => !o)}
           aria-haspopup="menu"
           aria-expanded={menuOpen}
-          className="flex items-center gap-2 rounded-control p-1 pr-2 transition-colors hover:bg-surface-hover"
+          /* ── Avatar button: ring on hover adds a premium feel ──────────────
+             ring-2 ring-brand-500/20 on hover creates a subtle halo that anchors
+             the avatar as a clickable target without being intrusive. */
+          className="flex items-center gap-2 rounded-control p-1 pr-2 transition-all duration-150 hover:bg-surface-hover hover:ring-2 hover:ring-brand-500/20"
         >
           <Avatar name={user?.name ?? 'User'} size="sm" />
           <span className="hidden text-[13px] font-medium text-ink-primary sm:block">

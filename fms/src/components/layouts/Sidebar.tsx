@@ -13,6 +13,9 @@ import { ADMIN_NAV } from '@/components/layouts/nav';
  * Sticky + h-screen + self-start so the rail pins to the viewport instead of stretching
  * with the page: the footer (sign out / collapse) stays reachable on long screens, and
  * only the nav list scrolls when it overflows.
+ *
+ * Visual upgrade: gradient brand icon, richer active nav bg + indicator,
+ * section labels refined, footer border elevated.
  */
 export function Sidebar() {
   const collapsed = useUiStore((s) => s.sidebarCollapsed);
@@ -26,36 +29,42 @@ export function Sidebar() {
         collapsed ? 'w-[72px]' : 'w-60',
       )}
     >
-      {/* Brand */}
+      {/* ── Brand ─────────────────────────────────────────────────────────────
+          Icon uses the brand gradient so the sidebar header anchors the brand
+          colour across collapsed/expanded states (pattern from NexaFleet). */}
       <div className={cn('flex h-16 items-center gap-2.5 border-b border-hairline px-4', collapsed && 'justify-center px-0')}>
-        <span className="grid size-9 shrink-0 place-items-center rounded-chip bg-brand-600 text-white">
+        <span className="grid size-9 shrink-0 place-items-center rounded-chip bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-xs">
           <Truck className="size-5" aria-hidden />
         </span>
         {!collapsed && (
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold tracking-tight text-ink-primary">FleetMS</p>
-            <p className="truncate text-[11px] text-ink-muted">Delivery Operations</p>
+            <p className="truncate text-sm font-bold tracking-tight text-ink-primary">FleetMS</p>
+            {/* Sub-label: slightly more muted to create clear hierarchy */}
+            <p className="truncate text-[11px] font-medium text-ink-muted">Delivery Operations</p>
           </div>
         )}
       </div>
 
-      {/* Nav */}
+      {/* ── Nav ───────────────────────────────────────────────────────────── */}
       <nav className="flex-1 overflow-y-auto px-3 py-3">
         {ADMIN_NAV.map((section, i) => (
           <div key={section.title ?? `section-${i}`}>
             {section.title && !collapsed && (
-              <p className="px-3 pb-1.5 pt-5 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
+              /* Section label: uppercase + wider tracking for clear grouping */
+              <p className="px-3 pb-1.5 pt-5 text-[10px] font-bold uppercase tracking-[0.08em] text-ink-disabled">
                 {section.title}
               </p>
             )}
             {section.title && collapsed && <div className="my-3 border-t border-hairline" />}
-            <ul className="space-y-1">
+            <ul className="space-y-0.5">
               {section.items.map((item) => {
                 const content = (isActive: boolean) => (
                   <>
                     {isActive && (
+                      /* Active indicator: rounded-full pill vs old square bar —
+                         more modern, inspired by Cureer sidebar */
                       <span
-                        className="absolute left-0 h-6 w-[3px] rounded-full bg-brand-600"
+                        className="absolute left-0 h-5 w-[3px] rounded-r-full bg-brand-600"
                         aria-hidden
                       />
                     )}
@@ -66,10 +75,12 @@ export function Sidebar() {
 
                 const itemClass = (isActive: boolean) =>
                   cn(
-                    'group relative flex items-center gap-3 rounded-control px-3 py-2.5 text-sm font-medium transition-colors duration-150',
+                    'group relative flex items-center gap-3 rounded-control px-3 py-2.5 text-sm font-medium transition-all duration-150',
                     collapsed && 'justify-center px-0',
                     isActive
-                      ? 'bg-brand-50 font-semibold text-brand-700'
+                      /* Active: gradient tint bg instead of flat brand-50 —
+                         more refined than the old solid fill */
+                      ? 'bg-gradient-to-r from-brand-50 to-brand-50/0 font-semibold text-brand-700'
                       : 'text-ink-secondary hover:bg-surface-hover hover:text-ink-primary',
                   );
 
@@ -102,14 +113,15 @@ export function Sidebar() {
         ))}
       </nav>
 
-      {/* Footer: user + collapse */}
-      <div className="border-t border-hairline p-3">
+      {/* ── Footer: user + collapse ──────────────────────────────────────────
+          Slightly stronger border and bg for visual separation from nav. */}
+      <div className="border-t border-hairline/strong bg-surface-sunken p-3">
         <div className={cn('flex items-center gap-2.5', collapsed && 'justify-center')}>
           <Avatar name={user?.name ?? 'User'} size="sm" />
           {!collapsed && (
             <>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-medium text-ink-primary">{user?.name}</p>
+                <p className="truncate text-[13px] font-semibold text-ink-primary">{user?.name}</p>
                 <p className="truncate text-[11px] capitalize text-ink-muted">{user?.role}</p>
               </div>
               <IconButton label="Sign out" onClick={logout}>
@@ -139,3 +151,4 @@ export function Sidebar() {
     </aside>
   );
 }
+

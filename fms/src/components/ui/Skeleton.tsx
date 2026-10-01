@@ -5,9 +5,11 @@ import { cn } from '@/lib/cn';
 export function Skeleton({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn('animate-pulse rounded-md bg-slate-100', className)}
+      className={cn('animate-pulse rounded-[8px] bg-slate-100/90', className)}
       aria-hidden
       {...props}
     />
   );
 }
+
+

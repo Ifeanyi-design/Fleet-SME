@@ -25,12 +25,13 @@ export function DetailList({ items, columns = 2, className }: DetailListProps) {
     >
       {items.map((item) => (
         <div key={item.label} className="min-w-0">
-          <dt className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
+          <dt className="text-[11px] font-bold uppercase tracking-[0.05em] text-ink-muted">
             {item.label}
           </dt>
-          <dd className="mt-1 text-sm text-ink-primary">{item.value}</dd>
+          <dd className="mt-1 text-sm font-medium text-ink-primary">{item.value}</dd>
         </div>
       ))}
     </dl>
   );
 }
+

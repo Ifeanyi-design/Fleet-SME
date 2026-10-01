@@ -36,19 +36,19 @@ export function TrackingTimeline({ events }: TrackingTimelineProps) {
 
             <span
               className={cn(
-                'relative z-10 mt-0.5 grid size-6 shrink-0 place-items-center rounded-full',
-                event.done ? DOT_TONE[event.status] ?? 'bg-brand-600' : 'border border-hairline-strong bg-white',
+                'relative z-10 mt-0.5 grid size-6 shrink-0 place-items-center rounded-full shadow-xs ring-4 ring-white',
+                event.done ? DOT_TONE[event.status] ?? 'bg-brand-600' : 'border border-hairline-strong bg-slate-50',
               )}
               aria-hidden
             >
-              {event.done && <Check className="size-3.5 text-white" />}
+              {event.done && <Check className="size-3 text-white stroke-[2.5]" />}
             </span>
 
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 pt-0.5">
               <p
                 className={cn(
-                  'text-sm',
-                  event.done ? 'font-semibold text-ink-primary' : 'font-medium text-ink-muted',
+                  'text-sm tracking-tight',
+                  event.done ? 'font-bold text-ink-primary' : 'font-medium text-ink-muted',
                 )}
               >
                 {event.label}
@@ -63,3 +63,4 @@ export function TrackingTimeline({ events }: TrackingTimelineProps) {
     </ol>
   );
 }
+

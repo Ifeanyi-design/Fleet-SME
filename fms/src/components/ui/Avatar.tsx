@@ -6,9 +6,9 @@ import { initials } from '@/lib/formatters';
 export type AvatarSize = 'sm' | 'md' | 'lg';
 
 const SIZE: Record<AvatarSize, string> = {
-  sm: 'size-8 text-[11px]',
-  md: 'size-9 text-xs',
-  lg: 'size-12 text-sm',
+  sm: 'size-7 text-[10px]',
+  md: 'size-8 text-xs',
+  lg: 'size-11 text-sm',
 };
 
 export interface AvatarProps {
@@ -21,7 +21,8 @@ export function Avatar({ name, size = 'md', className }: AvatarProps) {
   return (
     <span
       className={cn(
-        'inline-grid shrink-0 place-items-center rounded-full bg-brand-100 font-semibold text-brand-700',
+        'inline-grid shrink-0 place-items-center rounded-full font-bold tracking-tight',
+        'bg-gradient-to-br from-brand-100 to-brand-200/80 text-brand-800 ring-1 ring-inset ring-brand-700/10 shadow-xs',
         SIZE[size],
         className,
       )}
@@ -31,3 +32,4 @@ export function Avatar({ name, size = 'md', className }: AvatarProps) {
     </span>
   );
 }
+

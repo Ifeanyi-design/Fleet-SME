@@ -50,19 +50,20 @@ export function AlertDialog({
         </>
       }
     >
-      <div className="flex gap-3.5">
+      <div className="flex items-start gap-3.5">
         {variant === 'destructive' && (
           <span
-            className={cn('grid size-10 shrink-0 place-items-center rounded-full bg-red-100 text-red-700')}
+            className={cn('grid size-9 shrink-0 place-items-center rounded-full bg-red-50 text-red-600 ring-4 ring-red-50/70 shadow-xs')}
             aria-hidden
           >
-            <AlertTriangle className="size-5" />
+            <AlertTriangle className="size-4.5" />
           </span>
         )}
-        <p className="text-sm text-ink-body">
+        <p className="pt-1 text-[13px] leading-relaxed text-ink-secondary">
           {description ?? 'This action cannot be undone.'}
         </p>
       </div>
     </Dialog>
   );
 }
+

@@ -103,19 +103,21 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               key={item.id}
               role="status"
               className={cn(
-                'pointer-events-auto flex items-start gap-3 rounded-card border border-hairline bg-surface px-4 py-3.5 shadow-lg',
+                'pointer-events-auto flex items-start gap-3 rounded-card border border-hairline/90 bg-white/95 p-3.5 shadow-pop backdrop-blur-md',
                 isLeaving ? 'animate-toast-out' : 'animate-toast-in',
               )}
             >
-              <Icon className={cn('mt-0.5 size-5 shrink-0', accent)} aria-hidden />
-              <div className="min-w-0 flex-1">
-                <p className="text-[13px] font-semibold text-ink-primary">{item.title}</p>
+              <span className="grid size-7 shrink-0 place-items-center rounded-full bg-slate-50 ring-1 ring-hairline-strong">
+                <Icon className={cn('size-4', accent)} aria-hidden />
+              </span>
+              <div className="min-w-0 flex-1 pt-0.5">
+                <p className="text-[13px] font-semibold tracking-tight text-ink-primary">{item.title}</p>
                 {item.description && (
-                  <p className="mt-0.5 text-[13px] text-ink-secondary">{item.description}</p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-ink-secondary">{item.description}</p>
                 )}
               </div>
-              <IconButton label="Dismiss notification" onClick={() => dismiss(item.id)}>
-                <X className="size-4" />
+              <IconButton label="Dismiss notification" size="sm" onClick={() => dismiss(item.id)}>
+                <X className="size-3.5" />
               </IconButton>
             </div>
           );
@@ -124,6 +126,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     </ToastContext.Provider>
   );
 }
+
 
 export function useToast(): ToastContextValue {
   const ctx = useContext(ToastContext);

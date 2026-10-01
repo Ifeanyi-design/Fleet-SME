@@ -34,12 +34,13 @@ export function LicenceExpiryBadge({ expiryDate, showDate = false }: LicenceExpi
   }
 
   return (
-    <span className="inline-flex items-center gap-2">
+    <span className="inline-flex items-center gap-1.5">
       <Badge variant={variant}>
-        <Icon className="size-3.5" aria-hidden />
+        <Icon className="size-3" aria-hidden />
         {label}
       </Badge>
-      {showDate && <span className="text-xs text-ink-muted">{formatDate(expiryDate)}</span>}
+      {showDate && <span className="text-[11px] tabular-nums text-ink-muted">{formatDate(expiryDate)}</span>}
     </span>
   );
 }
+

@@ -107,9 +107,14 @@ export function DeliveryStatusDonut({ counts, loading = false }: DeliveryStatusD
                   />
                   <span className="truncate">{row.name}</span>
                 </span>
-                <span className="shrink-0 whitespace-nowrap font-medium tabular-nums text-ink-primary">
-                  {formatNumber(row.value)}
-                  <span className="ml-1.5 text-xs font-normal text-ink-muted">
+                {/* ── Count + percentage ────────────────────────────────────────
+                    Percentage is now a soft pill (bg-surface-sunken rounded-full)
+                    so it reads as a badge instead of bare text — cleaner hierarchy. */}
+                <span className="flex shrink-0 items-center gap-1.5 whitespace-nowrap">
+                  <span className="font-semibold tabular-nums text-ink-primary">
+                    {formatNumber(row.value)}
+                  </span>
+                  <span className="rounded-full bg-surface-sunken px-1.5 py-0.5 text-xs font-medium text-ink-muted">
                     {Math.round((row.value / total) * 100)}%
                   </span>
                 </span>
