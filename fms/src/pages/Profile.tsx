@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Info, LogOut, ShieldCheck } from 'lucide-react';
+import { LogOut, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { isMockData } from '@/lib/api';
 import { PageHeader } from '@/components/layouts/PageHeader';
 import { Avatar } from '@/components/ui/Avatar';
 import { AlertDialog } from '@/components/ui/AlertDialog';
@@ -55,44 +54,25 @@ export function Profile() {
           />
         </Card>
 
-        <div className="space-y-6">
-          <Card>
-            <div className="mb-4 flex items-center gap-2.5">
-              <ShieldCheck className="size-4 text-ink-secondary" aria-hidden />
-              <CardTitle>Session</CardTitle>
-            </div>
-            <CardDescription>
-              You are signed in as an administrator. Access to vehicle, driver and dispatch
-              records is restricted to this role (NFR2).
-            </CardDescription>
-            <Button
-              variant="secondary"
-              fullWidth
-              className="mt-5"
-              leftIcon={<LogOut className="size-4" />}
-              onClick={() => setConfirmingSignOut(true)}
-            >
-              Sign out
-            </Button>
-          </Card>
-
-          {isMockData && (
-            <Card className="border-amber-200 bg-amber-50">
-              <div className="flex items-start gap-2.5">
-                <Info className="mt-0.5 size-4 shrink-0 text-amber-700" aria-hidden />
-                <div>
-                  <p className="text-[13px] font-semibold text-amber-900">
-                    Password management is not wired yet
-                  </p>
-                  <p className="mt-0.5 text-[13px] text-amber-800">
-                    Changing your password needs the auth endpoint from the Flask backend.
-                    Until then, sign-in uses the demo accounts.
-                  </p>
-                </div>
-              </div>
-            </Card>
-          )}
-        </div>
+        <Card>
+          <div className="mb-4 flex items-center gap-2.5">
+            <ShieldCheck className="size-4 text-ink-secondary" aria-hidden />
+            <CardTitle>Session</CardTitle>
+          </div>
+          <CardDescription>
+            You are signed in as an administrator. Access to vehicle, driver and dispatch
+            records is restricted to this role.
+          </CardDescription>
+          <Button
+            variant="secondary"
+            fullWidth
+            className="mt-5"
+            leftIcon={<LogOut className="size-4" />}
+            onClick={() => setConfirmingSignOut(true)}
+          >
+            Sign out
+          </Button>
+        </Card>
       </div>
 
       <AlertDialog

@@ -25,8 +25,6 @@ import type { AuthUser, UserRole } from '@/types/domain';
 const STORAGE_KEY = 'fms.auth';
 const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
 
-export const isMockAuth = USE_MOCK;
-
 interface AuthContextValue {
   user: AuthUser | null;
   role: UserRole | null;
@@ -44,42 +42,56 @@ interface LoginResult {
   token: string;
 }
 
-/* ── mock directory (used only when VITE_USE_MOCK is not "false") ────────── */
+/* ── offline account directory (only used when VITE_USE_MOCK is not "false") ──
+   Mirrors the accounts the backend seeds, so sign-in behaves identically in both
+   modes. Passwords are overridable on the server via SEED_ADMIN_PASSWORD /
+   SEED_DRIVER_PASSWORD. */
 
-const DEMO_ACCOUNTS: Array<{ email: string; password: string; user: AuthUser }> = [
+const OFFLINE_ACCOUNTS: Array<{ email: string; password: string; user: AuthUser }> = [
   {
-    email: 'admin@fms.local',
-    password: 'admin123',
+    email: 'manager@fleetsme.com',
+    password: 'Fleet@2026',
     user: {
       userId: 1,
       name: 'Ifeanyi Agada',
-      email: 'admin@fms.local',
+      email: 'manager@fleetsme.com',
       role: 'admin',
       driverId: null,
     },
   },
   {
-    email: 'driver@fms.local',
-    password: 'driver123',
+    email: 'dispatch@fleetsme.com',
+    password: 'Fleet@2026',
     user: {
       userId: 2,
+      name: 'Ngozi Okonkwo',
+      email: 'dispatch@fleetsme.com',
+      role: 'admin',
+      driverId: null,
+    },
+  },
+  {
+    email: 'musa.ibrahim@fleetsme.com',
+    password: 'Rider@2026',
+    user: {
+      userId: 3,
       name: 'Musa Ibrahim',
-      email: 'driver@fms.local',
+      email: 'musa.ibrahim@fleetsme.com',
       role: 'driver',
       driverId: 1,
     },
   },
 ];
 
-async function mockLogin(email: string, password: string): Promise<LoginResult> {
+async function offlineLogin(email: string, password: string): Promise<LoginResult> {
   await new Promise((resolve) => setTimeout(resolve, 450)); // simulate latency
-  const account = DEMO_ACCOUNTS.find(
+  const account = OFFLINE_ACCOUNTS.find(
     (a) => a.email.toLowerCase() === email.trim().toLowerCase() && a.password === password,
   );
   if (!account) {
     throw new Error('Invalid email or password.');
   }
-  return { user: account.user, token: `mock.${account.user.role}.${Date.now()}` };
+  return { user: account.user, token: `offline.${account.user.role}.${Date.now()}` };
 }
 
 /* ── live API ────────────────────────────────────────────────────────────── */
@@ -146,7 +158,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(
     async (email: string, password: string): Promise<AuthUser> => {
       const result = USE_MOCK
-        ? await mockLogin(email, password)
+        ? await offlineLogin(email, password)
         : await apiLogin(email, password);
       persist(result.user, result.token);
       return result.user;

@@ -114,14 +114,57 @@ curl https://fleet-sme-api.onrender.com/api/track/examples
 # Login works
 curl -X POST https://fleet-sme-api.onrender.com/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@fms.local","password":"admin123"}'
+  -d '{"email":"manager@fleetsme.com","password":"Fleet@2026"}'
 # → {"token":"eyJ...","user":{...}}
 ```
 
-Then open `https://fleet-sme-web.onrender.com` and sign in with
-`admin@fms.local / admin123` or `driver@fms.local / driver123`.
+Then open `https://fleet-sme-web.onrender.com` and sign in with one of the accounts below.
 
-**Change these passwords before showing this to anyone.** They are seeded demo credentials.
+---
+
+## Accounts
+
+Provisioned automatically on first boot. **Two administrators and one login per rider.**
+
+### Administrators — full access to every screen
+
+| Name | Email | Password |
+|---|---|---|
+| Ifeanyi Agada | `manager@fleetsme.com` | `Fleet@2026` |
+| Ngozi Okonkwo | `dispatch@fleetsme.com` | `Fleet@2026` |
+
+### Drivers — mobile app only, scoped to their own waybills
+
+| Name | Email | Password |
+|---|---|---|
+| Musa Ibrahim | `musa.ibrahim@fleetsme.com` | `Rider@2026` |
+| Chinedu Okafor | `chinedu.okafor@fleetsme.com` | `Rider@2026` |
+| Ayo Bakare | `ayo.bakare@fleetsme.com` | `Rider@2026` |
+| Emeka Nwosu | `emeka.nwosu@fleetsme.com` | `Rider@2026` |
+| Yusuf Bello | `yusuf.bello@fleetsme.com` | `Rider@2026` |
+| Tunde Adeyemi | `tunde.adeyemi@fleetsme.com` | `Rider@2026` |
+| Sani Garba | `sani.garba@fleetsme.com` | `Rider@2026` |
+
+> **A driver signing in sees only their own deliveries** — the API scopes the query by the
+> authenticated rider, and the `driverId` parameter is ignored rather than trusted.
+
+### Changing the passwords
+
+The defaults are seeded for a working demo. Override them **before** the first deploy by adding
+these environment variables to `fleet-sme-api` in Render:
+
+```
+SEED_ADMIN_PASSWORD  = <your admin password>
+SEED_DRIVER_PASSWORD = <your driver password>
+```
+
+They are read at seed time only, so set them before the database is first populated. If the
+database already exists, either change the variables and reset the database, or update the hashes
+directly.
+
+> **Security note:** the default passwords are in this repository, which is public. That is
+> acceptable for a coursework demonstration, but never leave them in place for anything real.
+
 
 ---
 
@@ -135,6 +178,8 @@ Then open `https://fleet-sme-web.onrender.com` and sign in with
 | `JWT_SECRET_KEY` | *(auto-generated)* | Render generates a strong value |
 | `CORS_ORIGINS` | `https://fleet-sme-web.onrender.com` | **Set manually in Step 3** |
 | `AUTO_SEED` | `true` | Seeds the baseline on first boot; idempotent |
+| `SEED_ADMIN_PASSWORD` | `Fleet@2026` *(default)* | Override before the first deploy |
+| `SEED_DRIVER_PASSWORD` | `Rider@2026` *(default)* | Override before the first deploy |
 | `PYTHON_VERSION` | `3.11.9` | Pinned by the blueprint |
 | `JWT_HOURS` | `12` *(optional)* | Token lifetime |
 

@@ -1,11 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Plus, RefreshCw } from 'lucide-react';
-import { isMockData } from '@/lib/api';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useMaintenance } from '@/hooks/useMaintenance';
 import { useVehicles } from '@/hooks/useVehicles';
 import { PageHeader } from '@/components/layouts/PageHeader';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Select } from '@/components/ui/Select';
@@ -52,7 +50,6 @@ export function Maintenance() {
         breadcrumbs={[{ label: 'Fleet' }, { label: 'Maintenance' }]}
         actions={
           <>
-            {isMockData && <Badge variant="neutral">Demo data</Badge>}
             <Button
               variant="secondary"
               leftIcon={<RefreshCw className="size-4" />}

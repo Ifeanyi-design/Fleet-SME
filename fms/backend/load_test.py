@@ -164,7 +164,7 @@ def measure_query_paths(application):
     """Time the status-query endpoints against the scaled database."""
     client = application.test_client()
 
-    login = client.post("/api/auth/login", json={"email": "admin@fms.local", "password": "admin123"})
+    login = client.post("/api/auth/login", json={"email": "manager@fleetsme.com", "password": "Fleet@2026"})
     token = login.get_json()["token"]
     headers = {"Authorization": f"Bearer {token}"}
 
@@ -217,7 +217,7 @@ def _one_request(url: str, token: str) -> tuple[float, int]:
 
 def measure_concurrency(base_url: str) -> dict | None:
     """Fire CONCURRENT_SESSIONS simultaneous status queries."""
-    payload = json.dumps({"email": "admin@fms.local", "password": "admin123"}).encode()
+    payload = json.dumps({"email": "manager@fleetsme.com", "password": "Fleet@2026"}).encode()
     request = urllib.request.Request(
         f"{base_url}/api/auth/login", data=payload, method="POST"
     )

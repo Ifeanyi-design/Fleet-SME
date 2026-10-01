@@ -4,10 +4,8 @@ import type { Vehicle, VehicleStatus, VehicleType } from '@/types/domain';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useVehicles } from '@/hooks/useVehicles';
 import { PageHeader } from '@/components/layouts/PageHeader';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
-import { isMockData } from '@/lib/api';
 import {
   FilterBar,
   FilterChips,
@@ -60,7 +58,6 @@ export function Vehicles() {
         breadcrumbs={[{ label: 'Fleet' }, { label: 'Vehicles' }]}
         actions={
           <>
-            {isMockData && <Badge variant="neutral">Demo data</Badge>}
             <Button
               variant="secondary"
               leftIcon={<RefreshCw className="size-4" />}

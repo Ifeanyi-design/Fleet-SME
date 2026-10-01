@@ -10,6 +10,7 @@ are always meaningful. A fixed PRNG seed keeps the generated history stable.
 Idempotent: `seed_if_empty()` does nothing if users already exist.
 """
 
+import os
 import random
 from datetime import date, datetime, time, timedelta
 
@@ -126,6 +127,13 @@ RECIPIENTS = [
 ]
 
 
+#: Administrative accounts provisioned on first boot.
+ADMIN_ACCOUNTS = [
+    ("Ifeanyi Agada", "manager@fleetsme.com"),
+    ("Ngozi Okonkwo", "dispatch@fleetsme.com"),
+]
+
+
 def seed_all() -> None:
     """Populate the database. Assumes empty tables."""
     rng = random.Random(20261001)
@@ -234,25 +242,35 @@ def seed_all() -> None:
                 )
 
     # ── authentication principals (NFR2) ─────────────────────────────────
-    # Credentials match the frontend's demo accounts so the same sign-in works
-    # against mock data and against this API.
-    db.session.add_all(
-        [
+    # Two administrative accounts plus one login per rider on the roster.
+    # Passwords come from the environment so a deployment does not have to ship the
+    # development defaults — see DEPLOY.md.
+    admin_password = os.getenv("SEED_ADMIN_PASSWORD", "Fleet@2026")
+    driver_password = os.getenv("SEED_DRIVER_PASSWORD", "Rider@2026")
+
+    accounts = [
+        AppUser(
+            name=name,
+            email=email,
+            password_hash=generate_password_hash(admin_password, method="pbkdf2:sha256"),
+            role="admin",
+        )
+        for name, email in ADMIN_ACCOUNTS
+    ]
+
+    for driver in drivers:
+        local = driver.full_name.lower().replace(" ", ".")
+        accounts.append(
             AppUser(
-                name="Ifeanyi Agada",
-                email="admin@fms.local",
-                password_hash=generate_password_hash("admin123", method="pbkdf2:sha256"),
-                role="admin",
-            ),
-            AppUser(
-                name="Musa Ibrahim",
-                email="driver@fms.local",
-                password_hash=generate_password_hash("driver123", method="pbkdf2:sha256"),
+                name=driver.full_name,
+                email=f"{local}@fleetsme.com",
+                password_hash=generate_password_hash(driver_password, method="pbkdf2:sha256"),
                 role="driver",
-                driver_id=drivers[0].driver_id,
-            ),
-        ]
-    )
+                driver_id=driver.driver_id,
+            )
+        )
+
+    db.session.add_all(accounts)
 
     db.session.commit()
 
@@ -261,6 +279,10 @@ def seed_all() -> None:
         f"{len(customers)} customers · {len(products)} products · "
         f"{len(MAINTENANCE)} service logs · deliveries across {DAYS_BACK + 1} days"
     )
+    print("[seed] accounts provisioned:")
+    for account in accounts:
+        password = admin_password if account.role == "admin" else driver_password
+        print(f"         {account.role:<6} {account.email:<32} {password}")
 
 
 def seed_if_empty() -> None:

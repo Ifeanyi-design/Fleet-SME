@@ -1,11 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Pencil, Phone, Plus, Upload, Users } from 'lucide-react';
 import type { Customer } from '@/types/domain';
-import { isMockData } from '@/lib/api';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useCustomers } from '@/hooks/useReferenceData';
 import { PageHeader } from '@/components/layouts/PageHeader';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { IconButton } from '@/components/ui/IconButton';
@@ -87,7 +85,6 @@ export function Customers() {
         breadcrumbs={[{ label: 'Customer' }, { label: 'Customers' }]}
         actions={
           <>
-            {isMockData && <Badge variant="neutral">Demo data</Badge>}
             <Button
               variant="secondary"
               leftIcon={<Upload className="size-4" />}

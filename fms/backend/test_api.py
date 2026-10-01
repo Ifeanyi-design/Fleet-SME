@@ -52,17 +52,17 @@ def main() -> int:
     client = app.test_client()
 
     print("── auth (NFR2) ──")
-    r = client.post("/api/auth/login", json={"email": "admin@fms.local", "password": "admin123"})
+    r = client.post("/api/auth/login", json={"email": "manager@fleetsme.com", "password": "Fleet@2026"})
     check("admin login returns a token", r.status_code == 200 and "token" in r.get_json())
     admin = r.get_json()["token"]
     admin_h = {"Authorization": f"Bearer {admin}"}
 
-    r = client.post("/api/auth/login", json={"email": "driver@fms.local", "password": "driver123"})
+    r = client.post("/api/auth/login", json={"email": "musa.ibrahim@fleetsme.com", "password": "Rider@2026"})
     check("driver login returns a token", r.status_code == 200)
     driver = r.get_json()["token"]
     driver_h = {"Authorization": f"Bearer {driver}"}
 
-    r = client.post("/api/auth/login", json={"email": "admin@fms.local", "password": "wrong"})
+    r = client.post("/api/auth/login", json={"email": "manager@fleetsme.com", "password": "wrong"})
     check("bad password rejected with 401 UNAUTHORIZED", r.status_code == 401 and r.get_json()["error"] == "UNAUTHORIZED")
 
     check("no token is rejected", client.get("/api/vehicles").status_code == 401)
@@ -227,7 +227,7 @@ def main() -> int:
     check("driver can list their own waybills", r.status_code == 200)
     rows = r.get_json()
     driver_row = client.get("/api/auth/me", headers=driver_h).get_json()
-    own_driver_id = 1  # seeded link for driver@fms.local
+    own_driver_id = 1  # seeded link for musa.ibrahim@fleetsme.com
     check("driver sees only their own waybills", all(row["driverId"] == own_driver_id for row in rows), f"role={driver_row.get('role')}")
     check("driver cannot override the driverId filter", client.get("/api/deliveries?driverId=6", headers=driver_h).get_json() == rows or all(r["driverId"] == own_driver_id for r in client.get("/api/deliveries?driverId=6", headers=driver_h).get_json()))
 
@@ -264,8 +264,10 @@ def main() -> int:
     lower = client.get(f"/api/track/{code.lower()}")
     check("lookup is case-insensitive", lower.get_json() is not None)
 
+    # The tracking page resolves a code the customer already holds; there is no public
+    # endpoint that lists codes, by design.
     r = client.get("/api/track/examples")
-    check("example codes endpoint works", r.status_code == 200 and len(r.get_json()) == 3)
+    check("no public endpoint enumerates tracking codes", r.status_code == 404)
 
     print("── shared state across sessions (admin ⇄ driver) ──")
     # The point of the database: an action taken in one session must be visible in

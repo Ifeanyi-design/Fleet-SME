@@ -2,11 +2,9 @@ import { useMemo, useState } from 'react';
 import { AlertTriangle, Plus, RefreshCw } from 'lucide-react';
 import type { Driver, DriverStatus } from '@/types/domain';
 import { cn } from '@/lib/cn';
-import { isMockData } from '@/lib/api';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useDrivers } from '@/hooks/useDrivers';
 import { PageHeader } from '@/components/layouts/PageHeader';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
 import {
@@ -52,7 +50,6 @@ export function Drivers() {
         breadcrumbs={[{ label: 'Fleet' }, { label: 'Drivers' }]}
         actions={
           <>
-            {isMockData && <Badge variant="neutral">Demo data</Badge>}
             <Button
               variant="secondary"
               leftIcon={<RefreshCw className="size-4" />}

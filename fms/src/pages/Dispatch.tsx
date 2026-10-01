@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { Plus, RefreshCw } from 'lucide-react';
 import type { DeliveryDetail } from '@/types/domain';
-import { isMockData } from '@/lib/api';
 import { useDeliveries } from '@/hooks/useDeliveries';
 import { useDrivers } from '@/hooks/useDrivers';
 import { useVehicles } from '@/hooks/useVehicles';
 import { PageHeader } from '@/components/layouts/PageHeader';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { PendingOrderQueue } from '@/components/modules/dispatch/PendingOrderQueue';
@@ -48,7 +46,6 @@ export function Dispatch({ initialFormOpen = false }: DispatchProps) {
         breadcrumbs={[{ label: 'Dispatch' }, { label: 'Board' }]}
         actions={
           <>
-            {isMockData && <Badge variant="neutral">Demo data</Badge>}
             <Button
               variant="secondary"
               leftIcon={<RefreshCw className="size-4" />}

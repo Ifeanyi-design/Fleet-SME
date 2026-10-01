@@ -2,11 +2,9 @@ import { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { RangeKey } from '@/lib/mockApi';
-import { isMockData } from '@/lib/api';
 import { useDashboardMetrics } from '@/hooks/useDashboardMetrics';
 import { useDeliveries } from '@/hooks/useDeliveries';
 import { PageHeader } from '@/components/layouts/PageHeader';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { SegmentedControl, type SegmentedOption } from '@/components/ui/SegmentedControl';
@@ -44,7 +42,6 @@ export function Dashboard() {
         description="Real-time visibility across fleet availability, deliveries and maintenance."
         actions={
           <>
-            {isMockData && <Badge variant="neutral">Demo data</Badge>}
             <SegmentedControl
               options={RANGE_OPTIONS}
               value={range}

@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { BarChart3 } from 'lucide-react';
 import type { DeliveryDetail } from '@/types/domain';
-import { isMockData } from '@/lib/api';
 import { reportFilename, type CsvColumn } from '@/lib/csv';
 import { formatDateTime } from '@/lib/formatters';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -10,7 +9,6 @@ import { useReport } from '@/hooks/useReports';
 import { useDrivers } from '@/hooks/useDrivers';
 import { useVehicles } from '@/hooks/useVehicles';
 import { PageHeader } from '@/components/layouts/PageHeader';
-import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Card } from '@/components/ui/Card';
@@ -74,7 +72,6 @@ export function Reports() {
         breadcrumbs={[{ label: 'Dispatch' }, { label: 'Reports' }]}
         actions={
           <>
-            {isMockData && <Badge variant="neutral">Demo data</Badge>}
             <ExportButton
               rows={rows}
               columns={CSV_COLUMNS}

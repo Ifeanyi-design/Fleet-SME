@@ -565,17 +565,6 @@ export const mockApi = {
     );
   },
 
-  /**
-   * Demo affordance for the public tracking page — a few real codes to try.
-   * Returns an empty list from the live API (the page degrades gracefully).
-   */
-  async getExampleTrackingCodes(): Promise<string[]> {
-    const recent = [...db.deliveries]
-      .sort((a, b) => (a.dateCreated < b.dateCreated ? 1 : -1))
-      .slice(0, 3);
-    return delay(recent.map((d) => d.trackingCode), 120);
-  },
-
   /* ── notifications ───────────────────────────────────────────────────── */
 
   async listNotifications(filters: NotificationFilters = {}): Promise<AppNotification[]> {

@@ -55,13 +55,6 @@ def _build_events(delivery: Delivery) -> list[dict]:
     return events
 
 
-@tracking_bp.get("/api/track/examples")
-def examples():
-    """Demo affordance: a few real codes so the tracking page can be exercised."""
-    rows = Delivery.query.order_by(Delivery.date_created.desc()).limit(3).all()
-    return jsonify([row.tracking_code for row in rows])
-
-
 @tracking_bp.get("/api/track/<string:code>")
 def track(code: str):
     """Look up a waybill. Returns JSON null for an unknown code.

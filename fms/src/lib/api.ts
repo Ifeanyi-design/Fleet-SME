@@ -91,8 +91,6 @@ const realApi: MockApi = {
   getTracking: (trackingCode) =>
     apiClient.get<PublicTracking | null>(`/track/${encodeURIComponent(trackingCode)}`),
 
-  getExampleTrackingCodes: () => apiClient.get<string[]>('/track/examples'),
-
   /* notifications (FR9) */
   listNotifications: (filters = {}) =>
     apiClient.get<AppNotification[]>('/notifications', {
@@ -130,5 +128,3 @@ const realApi: MockApi = {
 };
 
 export const api: MockApi = USE_MOCK ? mockApi : realApi;
-
-export const isMockData = USE_MOCK;

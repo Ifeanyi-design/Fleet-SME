@@ -11,11 +11,6 @@ import { Input } from '@/components/ui/Input';
 
 /** Login & Authentication screen (PRD Table 3.6, row 1). */
 
-const DEMO = [
-  { label: 'Admin', email: 'admin@fms.local', password: 'admin123' },
-  { label: 'Driver', email: 'driver@fms.local', password: 'driver123' },
-];
-
 export function Login() {
   const { login, isAuthenticated, role, initializing } = useAuth();
   const navigate = useNavigate();
@@ -32,8 +27,8 @@ export function Login() {
     return <Navigate to={from ?? landingRouteFor(role)} replace />;
   }
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
     setError(null);
 
     if (!email.trim() || !password) {
@@ -51,12 +46,6 @@ export function Login() {
     } finally {
       setSubmitting(false);
     }
-  }
-
-  function fillDemo(account: (typeof DEMO)[number]) {
-    setEmail(account.email);
-    setPassword(account.password);
-    setError(null);
   }
 
   return (
@@ -123,24 +112,9 @@ export function Login() {
         </Button>
       </form>
 
-      <div className="mt-6 border-t border-hairline pt-5">
-        <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
-          Demo accounts
-        </p>
-        <div className="flex gap-2.5">
-          {DEMO.map((account) => (
-            <button
-              key={account.label}
-              type="button"
-              onClick={() => fillDemo(account)}
-              className="flex-1 rounded-control border border-hairline-strong bg-surface-sunken px-3 py-2 text-left text-xs transition-colors hover:border-hairline-hover hover:bg-surface-hover"
-            >
-              <span className="block font-semibold text-ink-primary">{account.label}</span>
-              <span className="block truncate text-ink-muted">{account.email}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      <p className="mt-6 border-t border-hairline pt-5 text-center text-xs text-ink-muted">
+        Access is restricted to authorised fleet personnel.
+      </p>
     </Card>
   );
 }

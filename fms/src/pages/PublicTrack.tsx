@@ -1,12 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PackageSearch, Search } from 'lucide-react';
-import { isMockData } from '@/lib/api';
 import { formatDateTime } from '@/lib/formatters';
 import { useTracking } from '@/hooks/useTracking';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '@/lib/api';
-import { queryKeys } from '@/lib/queryKeys';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -15,16 +11,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusPill } from '@/components/ui/StatusPill';
 import { TrackingTimeline } from '@/components/modules/tracking/TrackingTimeline';
 
-/** Public customer tracking (FR9 extend). No authentication required. */
-
-function useExampleCodes() {
-  return useQuery({
-    queryKey: [...queryKeys.tracking('examples'), 'list'],
-    queryFn: () => api.getExampleTrackingCodes(),
-    enabled: isMockData,
-    staleTime: 5 * 60_000,
-  });
-}
+/** Public customer tracking. No authentication required. */
 
 export function PublicTrack() {
   const { trackingCode } = useParams<{ trackingCode: string }>();
@@ -32,9 +19,8 @@ export function PublicTrack() {
   const [code, setCode] = useState(trackingCode ?? '');
 
   const query = useTracking(trackingCode ?? '');
-  const examples = useExampleCodes();
 
-  // Keep the input in sync when the URL changes (deep link or example click).
+  // Keep the input in sync when the URL changes (deep link).
   useEffect(() => {
     setCode(trackingCode ?? '');
   }, [trackingCode]);
@@ -78,26 +64,6 @@ export function PublicTrack() {
             Track
           </Button>
         </form>
-
-        {!trackingCode && isMockData && (examples.data?.length ?? 0) > 0 && (
-          <div className="mt-4 border-t border-hairline pt-4">
-            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
-              Demo — try one of these
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {examples.data?.map((example) => (
-                <button
-                  key={example}
-                  type="button"
-                  onClick={() => navigate(`/track/${example}`)}
-                  className="rounded-full border border-hairline-strong bg-surface-sunken px-3 py-1.5 font-mono text-xs text-ink-body transition-colors hover:border-hairline-hover hover:bg-surface-hover"
-                >
-                  {example}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </Card>
 
       {query.isLoading && (
