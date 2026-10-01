@@ -50,6 +50,9 @@ desktop.ini
 *-check.mjs
 *-check.ts
 
+# Vite config loader temporaries (emitted next to vite.config.ts on some platforms)
+*.timestamp-*.mjs
+
 # AI assistant working memory / tool state (project docs live in plan.md & progress.md).
 # Remove this line if you want the assistant's notes versioned too.
 .workbuddy-ai/
