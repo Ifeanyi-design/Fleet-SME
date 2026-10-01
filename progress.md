@@ -767,6 +767,62 @@ call changes nothing; the assertion now says that.
 Added the symptom to the troubleshooting table and a short "Already deployed and login is failing?"
 section explaining that a redeploy is the fix and that data is untouched.
 
+---
+
+## 2026-10-01 — Mobile notification panel overflow fixed
+
+Ifeanyi reported: *"on mobile view the notification modal went too much to the left and got cut off."*
+Gemini had diagnosed it correctly but hit its quota limit before making the edit — **the fix had not
+been applied**, so the bug was still live.
+
+### The bug, confirmed by arithmetic
+
+The notification panel is `absolute right-0` on the bell — but **the bell is not the rightmost item
+in the topbar** (the avatar menu sits to its right). Combined with a near-full-width panel, the left
+edge landed off-screen on every common phone width:
+
+| Screen | Panel width | Panel left edge |
+|---|---|---|
+| 360px | 328px | **−36px** |
+| 375px | 343px | **−36px** |
+| 390px | 358px | **−36px** |
+| 414px | 382px | **−36px** |
+| 430px | 398px | **−22px** |
+
+36px of the panel — its border, padding and icons — was off the left edge of the phone.
+
+### The fix
+
+Split the positioning by breakpoint instead of using one rule for both:
+
+- **Mobile:** `fixed inset-x-4 top-[4.5rem]` — pinned to the viewport with equal 16px margins, so it
+  cannot overhang either edge at any width.
+- **Tablet and up:** `sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-96` — reverts to
+  the original anchored, fixed-width panel. Desktop behaviour is unchanged (384px).
+
+Also capped the list height against the viewport (`max-h-[min(24rem,calc(100dvh-16rem))]`) so the
+panel still fits on a short screen in landscape rather than running past the bottom.
+
+### Audited the other dropdowns for the same flaw
+
+| Dropdown | Width | Verdict |
+|---|---|---|
+| Avatar menu (Topbar) | 224px, anchored to the **rightmost** item | ✅ fits (left edge ~120px on a 360px screen) |
+| Table row menus (DropdownMenu) | 176px, inside a card with padding | ✅ fits (left edge ~148px) |
+| Toasts | `fixed right-4`, capped at `max-w-sm` | ✅ fits — already viewport-anchored |
+
+The notification panel was the only one combining a near-full-width panel with a non-rightmost
+anchor. No other instance of the bug.
+
+### Verified
+`tsc` 0 errors, build green, and the compiled CSS contains the new rules (`inset-x-4`,
+`top-[4.5rem]` → `4.5rem`, `sm:w-96`, `sm:inset-x-auto`, `100dvh`).
+
+**A repeat of an earlier mistake, worth noting:** my first attempt put a `{/* comment */}` beside a
+sibling inside a ternary branch, which is invalid JSX and broke the build. Same error I made on the
+donut chart. Caught immediately by `tsc`.
+
+
 
 
 

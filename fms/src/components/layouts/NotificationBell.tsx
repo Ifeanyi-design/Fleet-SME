@@ -104,7 +104,16 @@ export function NotificationBell() {
         <div
           role="dialog"
           aria-label="Notifications"
-          className="absolute right-0 top-full z-40 mt-2 w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-panel border border-hairline bg-surface shadow-pop"
+          className={cn(
+            // Mobile: pinned to the viewport with equal margins, so it can never overhang
+            // the left edge. The bell is NOT the rightmost item in the topbar (the avatar
+            // menu sits to its right), so anchoring to the bell with a near-full-width
+            // panel pushed it ~36px off-screen on every common phone width.
+            'fixed inset-x-4 top-[4.5rem] z-40',
+            // Tablet and up: revert to a fixed-width panel anchored under the bell.
+            'sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-96',
+            'overflow-hidden rounded-panel border border-hairline bg-surface shadow-pop',
+          )}
         >
           <div className="flex items-center justify-between gap-3 border-b border-hairline px-4 py-3">
             <div className="flex items-center gap-2">
@@ -145,7 +154,7 @@ export function NotificationBell() {
               </p>
             </div>
           ) : (
-            <ul className="max-h-[24rem] overflow-y-auto p-1.5">
+            <ul className="max-h-[min(24rem,calc(100dvh-16rem))] overflow-y-auto p-1.5">
               {items.map((notification) => {
                 const Icon = CATEGORY_ICON[notification.category];
                 return (
