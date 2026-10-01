@@ -651,6 +651,65 @@ git branch -M main
 git push -u origin main
 ```
 
+---
+
+## 2026-10-01 — Demo scaffolding removed; real accounts provisioned
+
+### Everything "demo" is gone from the interface
+| Removed | Where |
+|---|---|
+| "Demo data" badge | Dashboard, Vehicles, Drivers, Maintenance, Dispatch, Reports, Customers |
+| "Demo accounts" panel with one-click fill | Login |
+| "Demo — try one of these" tracking codes | Public tracking |
+| "Password management is not wired yet" notice | Profile |
+| `isMockData` / `isMockAuth` exports | `lib/api.ts`, `context/AuthContext.tsx` |
+| `getExampleTrackingCodes` (client + mock + `/api/track/examples`) | all three layers |
+
+The login screen is now a plain credential form with an "access is restricted to authorised fleet
+personnel" note. The public tracking page resolves only a code the customer already holds — there is
+no endpoint that enumerates valid waybills, which is the correct security posture anyway (asserted
+in the suite).
+
+### Real accounts — 2 administrators, 1 login per rider
+
+**Administrators**
+
+| Name | Email | Password |
+|---|---|---|
+| Ifeanyi Agada | `manager@fleetsme.com` | `Fleet@2026` |
+| Ngozi Okonkwo | `dispatch@fleetsme.com` | `Fleet@2026` |
+
+**Drivers** — all seven riders on the roster, each scoped to their own waybills
+
+| Name | Email | Password |
+|---|---|---|
+| Musa Ibrahim | `musa.ibrahim@fleetsme.com` | `Rider@2026` |
+| Chinedu Okafor | `chinedu.okafor@fleetsme.com` | `Rider@2026` |
+| Ayo Bakare | `ayo.bakare@fleetsme.com` | `Rider@2026` |
+| Emeka Nwosu | `emeka.nwosu@fleetsme.com` | `Rider@2026` |
+| Yusuf Bello | `yusuf.bello@fleetsme.com` | `Rider@2026` |
+| Tunde Adeyemi | `tunde.adeyemi@fleetsme.com` | `Rider@2026` |
+| Sani Garba | `sani.garba@fleetsme.com` | `Rider@2026` |
+
+**Passwords are overridable per environment** — `SEED_ADMIN_PASSWORD` / `SEED_DRIVER_PASSWORD` — so
+a deployment does not have to ship the defaults. The seeder prints the account list on first boot,
+and the full table is in `DEPLOY.md`.
+
+> Security note recorded honestly: the defaults are in a public repository. Acceptable for a
+> coursework demonstration; never leave them in place for anything real.
+
+### Verification
+- **Backend suite: 131/131** (the obsolete demo-endpoint assertion was replaced with one asserting
+  that no public endpoint enumerates tracking codes).
+- **Load test: 6/6** — NFR1 worst case 2,588 ms, NFR5 unchanged.
+- Live login verified for both admin accounts and two driver accounts, including that the driver
+  principal resolves to its own `driverId` (1 and 7 respectively).
+- Old credentials correctly rejected (401).
+- `tsc` 0 errors; production build green.
+- Local database was **backed up** to `fms.db.backup-<timestamp>` (gitignored) and re-seeded, since
+  the previous file predated the new accounts.
+
+
 
 
 

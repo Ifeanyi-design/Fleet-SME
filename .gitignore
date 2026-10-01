@@ -20,9 +20,11 @@ env/
 
 # Databases — local development data, not source
 *.db
+*.db.backup-*
 *.sqlite
 *.sqlite3
 fms/backend/fms.db
+fms/backend/fms_scaled.db
 
 # Environment files (secrets)
 .env

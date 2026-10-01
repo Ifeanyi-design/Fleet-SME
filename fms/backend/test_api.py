@@ -264,10 +264,15 @@ def main() -> int:
     lower = client.get(f"/api/track/{code.lower()}")
     check("lookup is case-insensitive", lower.get_json() is not None)
 
-    # The tracking page resolves a code the customer already holds; there is no public
-    # endpoint that lists codes, by design.
+    # The tracking page resolves a code the customer already holds. There is no endpoint
+    # that enumerates codes: "/api/track/examples" is just an unknown code, so it returns
+    # null like any other miss rather than leaking a list of valid waybills.
     r = client.get("/api/track/examples")
-    check("no public endpoint enumerates tracking codes", r.status_code == 404)
+    check(
+        "no public endpoint enumerates tracking codes",
+        r.status_code == 200 and r.get_json() is None,
+        str(r.get_json())[:40],
+    )
 
     print("── shared state across sessions (admin ⇄ driver) ──")
     # The point of the database: an action taken in one session must be visible in
