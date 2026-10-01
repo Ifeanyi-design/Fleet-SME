@@ -516,13 +516,37 @@ standalone CSV/mock suites, and live HTTP checks through the Vite proxy.
 
 | ID | Requirement | Status | Notes |
 |---|---|---|---|
-| NFR1 | Status queries < 3.0 s under < 20 concurrent sessions | ⚠️ **Not measured** | Responses are single-digit ms locally; no load test has been run at 20 concurrent sessions |
+| NFR1 | Status queries < 3.0 s under < 20 concurrent sessions | ✅ | Measured: 20 concurrent sessions × 4 query paths, **0 errors, worst case 2.49 s**. `backend/load_test.py` |
 | NFR2 | Admin actions restricted to authenticated admins; bcrypt/pbkdf2 hashes | ✅ | PBKDF2-SHA256 (Werkzeug); `admin_required`; drivers scoped to their own rows |
 | NFR3 | High affordance, no manual required | ✅ | Labelled controls, inline validation, empty/error states, skip link |
 | NFR4 | ACID, referential integrity, no orphans | ✅ | Transactional allocation with rollback; FK constraints; CHECK-constrained enums; unique keys |
-| NFR5 | Scale 7 → 50 vehicles, 5,000 orders without schema change | ⚠️ **Not load-tested** | Schema has no hard-coded limits; pagination/limits in place. Seeded at ~1,100 orders |
+| NFR5 | Scale 7 → 50 vehicles, 5,000 orders without schema change | ✅ | Measured on a 50-vehicle / 5,200-order database built with the **unmodified** schema; slowest path 828 ms. `backend/load_test.py` |
 | NFR6 | Responsive on Safari/Chrome/Firefox, no native runtime | ⚠️ **Not device-tested** | Responsive built and code-audited (360/768/1280/1536); not verified on real devices |
 | NFR7 | Minimise mobile payload | ✅ | Eager bundle 105 kB gzip (was 286 kB); charts + motion deferred; driver app is data-light |
+
+### Measured performance (NFR1 / NFR5)
+
+On the scaled database (50 vehicles · 5,200 orders · 6,261 line items), single-session:
+
+| Query path | Latency |
+|---|---|
+| vehicles (status query) | 3.4 ms |
+| drivers (status query) | 3.4 ms |
+| single delivery | 3.5 ms |
+| maintenance | 6.4 ms |
+| deliveries by status | 19.4 ms |
+| deliveries (500 rows) | 76.8 ms |
+| dashboard metrics (30d) | 195.7 ms |
+| reports (full window) | 828.0 ms |
+
+Under **20 concurrent sessions** (0 errors): vehicles p50 76 ms / max 126 ms; drivers p50 85 ms /
+max 129 ms; deliveries p50 645 ms / max 984 ms; **dashboard metrics p50 1,815 ms / max 2,487 ms**.
+
+**Honest reading:** everything is inside the 3.0 s budget, but the dashboard-metrics endpoint has
+the least headroom. It loads the window's deliveries and aggregates in Python — fine at this scale,
+but it is the first thing to move to SQL aggregation, and the measurement is against Flask's
+development server with SQLite, not a production WSGI server (gunicorn/waitress) with PostgreSQL.
+
 
 ### Table 3.6 — screen inventory
 
@@ -545,7 +569,7 @@ standalone CSV/mock suites, and live HTTP checks through the Vite proxy.
 | PostgreSQL | ⚠️ **SQLite in dev** | Portable schema; set `DATABASE_URL` for PostgreSQL |
 | HTML5/CSS3/Bootstrap 5/JS | ⚠️ **Deviation** | React 18 + TypeScript + Tailwind instead (design-system fidelity) |
 | Render / Supabase hosting | ❌ **Not done** | No deployment |
-| Git & GitHub | ❌ **Not done** | No repository initialised |
+| Git & GitHub | ⚠️ **Local repo only** | Initialised on `main` with an initial commit (178 files); not yet pushed to GitHub |
 
 ### Table 4.4 — acceptance test cases
 
@@ -553,9 +577,10 @@ TC01–TC05 all ✅, asserted in `backend/test_api.py` and re-verified over live
 
 ### Known gaps (honest list)
 
-1. **Not deployed** (Render/Supabase) and **no Git repository** — both named in PRD Table 4.1.
-2. **NFR1/NFR5 not load-tested**; **NFR6 not device-tested**. These are verification gaps, not
-   build gaps — the acceptance criteria simply have not been measured.
+1. **Not deployed** (Render/Supabase) — named in PRD Table 4.1. The repository is initialised
+   locally but has not been pushed to a remote.
+2. **NFR6 is not device-tested.** Responsive behaviour is built and code-audited, but no physical
+   Safari/Android verification has been done.
 3. **FR9 customer notification is passive.** The customer is an external entity with no login, so
    they are informed by the public tracking page rather than being pushed to. Proactive SMS/WhatsApp
    is PRD §5.3 recommendation #2, explicitly post-baseline.
@@ -566,4 +591,7 @@ TC01–TC05 all ✅, asserted in `backend/test_api.py` and re-verified over live
 6. **PRD internal inconsistency resolved:** FR6 requires an odometer reading but Table 3.4's
    MAINTENANCE_LOG relation omits it. The functional requirement was treated as authoritative and
    the column added.
+7. **Performance measured on the development server**, not a production WSGI server. See the
+   measured-performance table above for the honest headroom picture.
+
 

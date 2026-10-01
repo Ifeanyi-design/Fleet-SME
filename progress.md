@@ -553,6 +553,55 @@ Documented as a dev stopgap; a real deployment should use Alembic.
 4. **"Cargo description" (Table 3.6)** is modelled as structured line items per the PRD's own ER
    model rather than free text.
 
+---
+
+## 2026-10-01 — Database confirmed, Git initialised, NFR1/NFR5 load-tested
+
+### The database was never missing
+Ifeanyi couldn't find it — it exists at **`fms/backend/fms.db`** (456 KB). It was hard to spot
+because `.gitignore` excludes `*.db`, so Git-aware editors dim or hide it. Confirmed contents:
+
+| Table | Rows |
+|---|---|
+| delivery | 1,072 |
+| delivery_item | 2,152 |
+| notification | 15 |
+| maintenance_log | 14 |
+| customer | 12 |
+| vehicle | 11 |
+| driver | 9 |
+| product | 8 |
+| app_user | 2 |
+
+**Data completed:** the seeded waybills predated the FR3 recipient columns, so all 1,072 rows had
+`recipient_name = NULL`. Backfilled (and added the same backfill to `ensure_schema` for future
+databases) so the field is populated rather than blank.
+
+### Git repository initialised
+- Root `.gitignore` covering node_modules, dist, `.venv`, `__pycache__`, `*.db`, `.env*`,
+  editor/OS files, temp verification scripts, and `.workbuddy-ai/` (assistant working memory —
+  excluded as tool state; one line to change if you want it versioned).
+- `git init -b main` + initial commit: **178 files, 20,358 insertions**, working tree clean.
+- Verified no build artefacts leaked into the index.
+
+### NFR1 / NFR5 verified with a real load test (`backend/load_test.py`)
+**NFR5 — scale:** built a throwaway database at **50 vehicles / 5,200 orders / 6,261 line items**
+using the *unmodified* schema, then timed the real query paths. Slowest single-session path:
+reports at **828 ms** — everything inside the 3.0 s budget.
+
+**NFR1 — concurrency:** 20 simultaneous sessions × 4 query paths, **0 errors**, worst case
+**2,487 ms** (dashboard metrics). Vehicles/drivers stay under 130 ms; deliveries under 1 s.
+
+**Honest reading (recorded in plan.md):** everything passes, but dashboard metrics has the least
+headroom at p50 1,815 ms. It aggregates in Python; that is the first thing to move to SQL
+aggregation. The measurement is also against Flask's development server with SQLite, not a
+production WSGI server with PostgreSQL — a more favourable configuration, so these numbers are a
+lower bound on capacity, not a production SLA.
+
+Both gaps are now closed, so plan.md's conformance appendix moved NFR1 and NFR5 from ⚠️ to ✅, and
+Git from ❌ to ⚠️ (local repo, not yet pushed to a remote).
+
+
 
 
 
