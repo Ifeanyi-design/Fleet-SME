@@ -568,8 +568,8 @@ development server with SQLite, not a production WSGI server (gunicorn/waitress)
 | SQLAlchemy ORM | ✅ | SQLAlchemy 2.1 / Flask-SQLAlchemy 3.1 |
 | PostgreSQL | ⚠️ **SQLite in dev** | Portable schema; set `DATABASE_URL` for PostgreSQL |
 | HTML5/CSS3/Bootstrap 5/JS | ⚠️ **Deviation** | React 18 + TypeScript + Tailwind instead (design-system fidelity) |
-| Render / Supabase hosting | ❌ **Not done** | No deployment |
-| Git & GitHub | ⚠️ **Local repo only** | Initialised on `main` with an initial commit (178 files); not yet pushed to GitHub |
+| Render / Supabase hosting | ⚠️ **Configured, not deployed** | `render.yaml` blueprint provisions API + static site + PostgreSQL; `DEPLOY.md` has the steps. Awaiting the GitHub push |
+| Git & GitHub | ⚠️ **Local repo, remote configured** | `main` with three commits; `origin` → `Ifeanyi-design/Fleet-SME`; push pending local credentials |
 
 ### Table 4.4 — acceptance test cases
 
@@ -577,8 +577,8 @@ TC01–TC05 all ✅, asserted in `backend/test_api.py` and re-verified over live
 
 ### Known gaps (honest list)
 
-1. **Not deployed** (Render/Supabase) — named in PRD Table 4.1. The repository is initialised
-   locally but has not been pushed to a remote.
+1. **Not deployed yet.** The repository is configured and the Render blueprint is written
+   (`render.yaml`), but the push and the dashboard steps in `DEPLOY.md` are still to be done.
 2. **NFR6 is not device-tested.** Responsive behaviour is built and code-audited, but no physical
    Safari/Android verification has been done.
 3. **FR9 customer notification is passive.** The customer is an external entity with no login, so
@@ -593,5 +593,25 @@ TC01–TC05 all ✅, asserted in `backend/test_api.py` and re-verified over live
    the column added.
 7. **Performance measured on the development server**, not a production WSGI server. See the
    measured-performance table above for the honest headroom picture.
+8. **Seeded demo credentials** (`admin@fms.local / admin123`) must be changed before any real use.
+
+### Deployment readiness
+
+Added for the Render target named in PRD Table 4.1 — see `DEPLOY.md` for the steps:
+
+- **`render.yaml`** blueprint: Python web service (gunicorn) + static site + managed PostgreSQL.
+- **gunicorn** added to `requirements.txt`; the Flask development server is explicitly not for
+  production. Started as `2 workers × 10 threads` (gthread), matching NFR1's 20 concurrent sessions.
+- **`psycopg2-binary`** added so PostgreSQL works out of the box.
+- **`DATABASE_URL` normalisation** in `config.py`: Render issues `postgres://…`, which SQLAlchemy
+  2.x rejects outright. The scheme is rewritten to `postgresql+psycopg2://` and `sslmode=require`
+  pinned for managed Postgres.
+- **Connection resilience**: `pool_pre_ping` + `pool_recycle` so a connection the provider has
+  closed is not handed out (common on free tiers).
+- **Seed race protection**: gunicorn starts multiple workers, all of which call the seeder. The
+  loser of the race now rolls back instead of crashing the service.
+- **SPA rewrite** in the blueprint, so refreshing `/vehicles` does not 404.
+- **`AUTO_SEED`** env flag to skip seeding entirely if desired.
+
 
 

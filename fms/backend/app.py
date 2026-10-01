@@ -49,14 +49,17 @@ def create_app(config_class=Config) -> Flask:
         return jsonify({"status": "ok"})
 
     # ── schema + seed ────────────────────────────────────────────────────
-    # create_all() is fine for coursework and local development. A production
-    # deployment should use migrations (Flask-Migrate / Alembic) instead.
+    # create_all() creates missing *tables*; ensure_schema() tops up columns added
+    # after the first release. A production deployment should use migrations
+    # (Flask-Migrate / Alembic) instead of either.
     with app.app_context():
         db.create_all()
         ensure_schema(app)
-        from seed import seed_if_empty
 
-        seed_if_empty()
+        if app.config.get("AUTO_SEED", True):
+            from seed import seed_if_empty
+
+            seed_if_empty()
 
     return app
 

@@ -1,0 +1,83 @@
+# Render Blueprint — Fleet Management System
+#
+# Deploys three resources from this repository:
+#   1. fleet-sme-db    managed PostgreSQL
+#   2. fleet-sme-api   Flask API behind gunicorn
+#   3. fleet-sme-web   the built React SPA (static site)
+#
+# Usage: Render dashboard → New → Blueprint → pick this repo.
+# After the first deploy you must fill in two values (marked `sync: false`):
+#   • fleet-sme-api  → CORS_ORIGINS   = https://fleet-sme-web.onrender.com
+#   • fleet-sme-web  → VITE_API_URL   = https://fleet-sme-api.onrender.com/api
+# Render cannot know those hostnames until the services exist once.
+#
+# NOTE: Render's free tier spins services down after ~15 minutes of inactivity, so the
+# first request afterwards takes ~30–60s to wake. The free PostgreSQL instance also
+# expires after 90 days unless upgraded.
+
+databases:
+  - name: fleet-sme-db
+    databaseName: fms
+    user: fms
+    plan: free
+    region: frankfurt
+
+services:
+  # ── API ────────────────────────────────────────────────────────────────────
+  - type: web
+    name: fleet-sme-api
+    runtime: python
+    plan: free
+    region: frankfurt
+    rootDir: fms/backend
+    buildCommand: pip install -r requirements.txt
+    # gunicorn, not `flask run` — the development server is single-threaded and
+    # explicitly not for production. 2 workers × 10 threads gives the 20 concurrent
+    # sessions NFR1 specifies, within the free tier's memory.
+    startCommand: >-
+      gunicorn app:app
+      --bind 0.0.0.0:$PORT
+      --worker-class gthread
+      --workers 2
+      --threads 10
+      --timeout 120
+      --access-logfile -
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fleet-sme-db
+          property: connectionString
+      # Render generates a strong secret; never reuse the dev fallback in production.
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      # Seed the Case Organisation A baseline on first boot (idempotent).
+      - key: AUTO_SEED
+        value: "true"
+      # Set after the static site exists — see the header note.
+      - key: CORS_ORIGINS
+        sync: false
+
+  # ── Frontend ───────────────────────────────────────────────────────────────
+  - type: web
+    name: fleet-sme-web
+    runtime: static
+    rootDir: fms
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      # Talk to the real API rather than the built-in mock data layer.
+      - key: VITE_USE_MOCK
+        value: "false"
+      # Absolute URL — the Vite dev proxy only exists during development, so a
+      # relative "/api" would 404 in production.
+      - key: VITE_API_URL
+        sync: false
+    routes:
+      # Single-page app: every path must fall through to index.html, otherwise a
+      # refresh on /vehicles or /dispatch returns Render's 404 page.
+      - type: rewrite
+        source: /*
+        destination: /index.html

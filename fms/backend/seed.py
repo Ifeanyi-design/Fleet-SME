@@ -13,6 +13,7 @@ Idempotent: `seed_if_empty()` does nothing if users already exist.
 import random
 from datetime import date, datetime, time, timedelta
 
+from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash
 
 from extensions import db
@@ -263,10 +264,19 @@ def seed_all() -> None:
 
 
 def seed_if_empty() -> None:
-    """Seed only when the database has no users yet."""
-    if db.session.query(AppUser.user_id).first() is not None:
-        return
-    seed_all()
+    """Seed only when the database has no users yet.
+
+    Safe to call from every worker process at boot: gunicorn starts several workers,
+    and if two of them race to seed the same empty database the loser hits a unique
+    constraint, rolls back, and carries on instead of crashing the service.
+    """
+    try:
+        if db.session.query(AppUser.user_id).first() is not None:
+            return
+        seed_all()
+    except IntegrityError:
+        db.session.rollback()
+        print("[seed] another worker seeded first; skipping")
 
 
 if __name__ == "__main__":

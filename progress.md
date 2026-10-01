@@ -601,6 +601,57 @@ lower bound on capacity, not a production SLA.
 Both gaps are now closed, so plan.md's conformance appendix moved NFR1 and NFR5 from ⚠️ to ✅, and
 Git from ❌ to ⚠️ (local repo, not yet pushed to a remote).
 
+---
+
+## 2026-10-01 — Deployment readiness for Render (+ push commands)
+
+Ifeanyi asked whether the code is structured for Render. **Honestly: it was not.** Four real
+blockers were fixed before writing the steps.
+
+### Blockers found and fixed
+
+| Blocker | Why it would have broken | Fix |
+|---|---|---|
+| **No production WSGI server** | Flask's dev server is single-threaded and explicitly not for production | `gunicorn` added to requirements; start command runs `2 workers × 10 threads` (gthread), matching NFR1's 20 concurrent sessions |
+| **No PostgreSQL driver** | Render has no SQLite; the app could not connect at all | `psycopg2-binary` added |
+| **`DATABASE_URL` scheme mismatch** | Render issues `postgres://…`, which SQLAlchemy 2.x rejects with *"Can't load plugin: sqlalchemy.dialects:postgres"* | `config.py` rewrites it to `postgresql+psycopg2://` and pins `sslmode=require` for managed Postgres |
+| **Relative API URL** | `VITE_API_URL=/api` relies on the Vite dev proxy, which does not exist in production — every request would 404 | Documented as an absolute build-time env var; verified it is baked into the bundle |
+
+### Also hardened
+
+- **Seed race protection** — gunicorn starts several workers, all of which call the seeder on boot.
+  The loser of the race now catches the unique-constraint violation and rolls back instead of
+  crashing the service.
+- **Connection resilience** — `pool_pre_ping` + `pool_recycle`, so a connection the provider has
+  already closed is not handed out (common on free tiers).
+- **SPA rewrite** — without it, refreshing `/vehicles` or `/dispatch` returns Render's 404 page.
+- **`AUTO_SEED`** env flag to skip seeding entirely.
+- **`PYTHON_VERSION`** pinned so the build is reproducible.
+
+### Files added
+- **`render.yaml`** — blueprint for all three resources (API, static site, PostgreSQL) so deployment
+  is one click rather than manual service-by-service setup.
+- **`DEPLOY.md`** — the step-by-step guide, including the two values Render cannot know until the
+  services exist (`CORS_ORIGINS` on the API, `VITE_API_URL` on the frontend), a troubleshooting
+  table, and free-tier caveats (services sleep after ~15 min; free Postgres expires after 90 days).
+- Updated `backend/.env.example` and `fms/.env.example` with production notes.
+
+### Verification
+- Backend suite still **131/131**; `tsc` 0 errors; production build green.
+- Confirmed the production API URL is **inlined into the built bundle** when `VITE_API_URL` is set
+  at build time, and that the relative `/api` fallback is gone.
+- Confirmed `postgres://…` is rewritten to `postgresql+psycopg2://…?sslmode=require`.
+
+### Push — left to Ifeanyi (needs interactive credentials)
+The sandbox has no stored GitHub credentials and cannot complete an interactive auth prompt, so the
+push is a manual step:
+```bash
+git remote add origin https://github.com/Ifeanyi-design/Fleet-SME.git
+git branch -M main
+git push -u origin main
+```
+
+
 
 
 
