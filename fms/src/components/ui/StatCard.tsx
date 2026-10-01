@@ -42,23 +42,45 @@ export interface StatCardProps {
 export function StatCard({ label, value, icon, tone = 'default', delta, className }: StatCardProps) {
   return (
     /* Merge the accent border into the card itself — flush keeps padding manual */
-    <Card flush className={cn('p-4 overflow-hidden', BORDER_ACCENT[tone], className)}>
-      <div className="flex items-start justify-between gap-3">
+    <Card flush className={cn('flex flex-col justify-between p-3.5 sm:p-4 overflow-hidden', BORDER_ACCENT[tone], className)}>
+      {/* ── Top row: Label has full width of the card — no longer squeezed by the icon ── */}
+      <div className="min-w-0">
+        <p className="text-[11px] 2xl:text-xs font-bold uppercase tracking-wider text-ink-muted leading-tight line-clamp-2">
+          {label}
+        </p>
+      </div>
+
+      {/* ── Bottom row: Big bold number on the left, icon badge on the right ── */}
+      <div className="mt-3 flex items-end justify-between gap-2">
         <div className="min-w-0">
-          {/* Label: slightly tighter tracking for a modern SaaS feel */}
-          <p className="truncate text-[12px] font-semibold uppercase tracking-wider text-ink-muted">
-            {label}
-          </p>
-          {/* Value: bumped to 3xl and tighter tracking for visual hierarchy */}
-          <p className="mt-1.5 text-3xl font-bold tracking-tight tabular-nums text-ink-primary">
+          <p className="text-2xl sm:text-3xl font-bold tracking-tight tabular-nums text-ink-primary">
             {value}
           </p>
+          {delta && (
+            <div className="mt-1 flex items-center gap-1 text-[11px]">
+              <span
+                className={cn(
+                  'inline-flex items-center gap-0.5 font-semibold',
+                  delta.direction === 'up' ? 'text-brand-700' : 'text-state-error',
+                )}
+              >
+                {delta.direction === 'up' ? (
+                  <ArrowUpRight className="size-3" aria-hidden />
+                ) : (
+                  <ArrowDownRight className="size-3" aria-hidden />
+                )}
+                {delta.value}%
+              </span>
+              {delta.label && <span className="text-ink-muted truncate">{delta.label}</span>}
+            </div>
+          )}
         </div>
+
         {icon && (
-          /* Icon badge gets a subtle scale-up on hover for micro-delight */
+          /* Icon badge: size-8.5 fits cleanly beside the value without crowding */
           <span
             className={cn(
-              'grid size-10 shrink-0 place-items-center rounded-chip shadow-xs',
+              'grid size-8 sm:size-9 shrink-0 place-items-center rounded-chip shadow-xs',
               'transition-transform duration-150 hover:scale-105',
               ICON_TONE[tone],
             )}
@@ -68,25 +90,7 @@ export function StatCard({ label, value, icon, tone = 'default', delta, classNam
           </span>
         )}
       </div>
-
-      {delta && (
-        <div className="mt-3 flex items-center gap-1.5 text-xs">
-          <span
-            className={cn(
-              'inline-flex items-center gap-0.5 font-semibold',
-              delta.direction === 'up' ? 'text-brand-700' : 'text-state-error',
-            )}
-          >
-            {delta.direction === 'up' ? (
-              <ArrowUpRight className="size-3.5" aria-hidden />
-            ) : (
-              <ArrowDownRight className="size-3.5" aria-hidden />
-            )}
-            {delta.value}%
-          </span>
-          {delta.label && <span className="text-ink-muted">{delta.label}</span>}
-        </div>
-      )}
     </Card>
   );
 }
+

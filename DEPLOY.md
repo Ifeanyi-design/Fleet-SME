@@ -130,7 +130,7 @@ Provisioned automatically on first boot. **Two administrators and one login per 
 
 | Name          | Email                   | Password     |
 | ------------- | ----------------------- | ------------ |
-| Ifeanyi Agada | `manage@fleetsme.com`   | `Fleet@2026` |
+| Ifeanyi Agada | `manager@fleetsme.com`  | `Fleet@2026` |
 | Ngozi Okonkwo | `dispatch@fleetsme.com` | `Fleet@2026` |
 
 ### Drivers — mobile app only, scoped to their own waybills

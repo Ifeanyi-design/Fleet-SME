@@ -18,14 +18,18 @@ export function KpiStatRow({ metrics, loading = false }: KpiStatRowProps) {
     return (
       <div className={GRID}>
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="rounded-card border border-hairline bg-surface p-4 shadow-card">
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="mt-2.5 h-7 w-12" />
+          <div key={i} className="flex flex-col justify-between rounded-card border border-hairline bg-surface p-4 shadow-card">
+            <Skeleton className="h-3.5 w-24" />
+            <div className="mt-3 flex items-end justify-between">
+              <Skeleton className="h-7 w-12" />
+              <Skeleton className="size-8 rounded-chip" />
+            </div>
           </div>
         ))}
       </div>
     );
   }
+
 
   const activeDeliveries = metrics.deliveriesByStatus.pending + metrics.deliveriesByStatus.in_progress;
 
