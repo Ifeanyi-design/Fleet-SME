@@ -57,9 +57,13 @@ def create_app(config_class=Config) -> Flask:
         ensure_schema(app)
 
         if app.config.get("AUTO_SEED", True):
-            from seed import seed_if_empty
+            from seed import ensure_accounts, seed_if_empty
 
+            # First run on an empty database: load the Case Organisation A baseline.
             seed_if_empty()
+            # Every run: make sure the expected accounts exist. A deployment seeded before
+            # an account was introduced would otherwise never receive it — see DEPLOY.md.
+            ensure_accounts()
 
     return app
 

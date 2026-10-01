@@ -682,6 +682,48 @@ def main() -> int:
         str([n["title"] for n in notes][:3]),
     )
 
+    print("── account provisioning (idempotent, runs on every boot) ──")
+    # Regression guard: the original seeder only ran against a brand-new database, so a
+    # deployment seeded before an account existed never received it. ensure_accounts()
+    # fixes that by topping the roster up on every start.
+    from models import AppUser, Driver
+    from seed import ADMIN_ACCOUNTS, LEGACY_ACCOUNT_EMAILS, ensure_accounts
+
+    with app.app_context():
+        # The first call may legitimately provision logins for riders this suite created
+        # (e.g. the FR2 update test). Idempotency means the *second* call changes nothing.
+        ensure_accounts()
+        after_first = AppUser.query.count()
+        ensure_accounts()
+        check(
+            "ensure_accounts is idempotent (second call changes nothing)",
+            AppUser.query.count() == after_first,
+            f"{AppUser.query.count()} vs {after_first}",
+        )
+        check(
+            "one login per rider on the roster",
+            AppUser.query.filter_by(role="driver").count() == Driver.query.count(),
+            f"{AppUser.query.filter_by(role='driver').count()} vs {Driver.query.count()}",
+        )
+        check("two administrator logins", AppUser.query.filter_by(role="admin").count() == 2)
+        check(
+            "no superseded development accounts remain",
+            AppUser.query.filter(AppUser.email.in_(LEGACY_ACCOUNT_EMAILS)).count() == 0,
+        )
+        check(
+            "administrator emails match the expected roster",
+            {u.email for u in AppUser.query.filter_by(role="admin")}
+            == {email for _, email in ADMIN_ACCOUNTS},
+        )
+        # Every rider login must resolve to a real DRIVER row.
+        check(
+            "every driver login is linked to a driver record",
+            all(
+                u.driver_id is not None and db.session.get(Driver, u.driver_id) is not None
+                for u in AppUser.query.filter_by(role="driver").all()
+            ),
+        )
+
     print(f"\n{PASSED} passed, {FAILED} failed")
     return 1 if FAILED else 0
 

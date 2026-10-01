@@ -133,6 +133,90 @@ ADMIN_ACCOUNTS = [
     ("Ngozi Okonkwo", "dispatch@fleetsme.com"),
 ]
 
+#: Accounts from the first release. Their passwords are published in this repository, so
+#: they are retired automatically rather than left active in a deployment.
+LEGACY_ACCOUNT_EMAILS = ("admin@fms.local", "driver@fms.local")
+
+
+def _admin_password() -> str:
+    return os.getenv("SEED_ADMIN_PASSWORD", "Fleet@2026")
+
+
+def _driver_password() -> str:
+    return os.getenv("SEED_DRIVER_PASSWORD", "Rider@2026")
+
+
+def driver_email(full_name: str) -> str:
+    """Derive a login address from a rider's name, e.g. Musa Ibrahim -> musa.ibrahim@…"""
+    return f"{full_name.strip().lower().replace(' ', '.')}@fleetsme.com"
+
+
+def ensure_accounts() -> None:
+    """Provision any missing accounts. Runs on every boot, not just the first.
+
+    `seed_if_empty()` only fires against a brand-new database, so a deployment seeded
+    before an account existed would never receive it — which is exactly what happened on
+    Render: the database held the original development logins and no amount of redeploying
+    added the real ones.
+
+    This is the idempotent counterpart: it adds whatever is missing, leaves existing
+    accounts completely alone (passwords are never reset), and retires the superseded
+    development logins. Cheap — a few SELECTs — and safe to repeat on every start.
+    """
+    admin_password = _admin_password()
+    driver_password = _driver_password()
+
+    existing = {email.lower() for (email,) in db.session.query(AppUser.email).all()}
+    changed = False
+
+    # 1. retire superseded development accounts
+    for email in LEGACY_ACCOUNT_EMAILS:
+        if email.lower() not in existing:
+            continue
+        legacy = AppUser.query.filter(db.func.lower(AppUser.email) == email).first()
+        if legacy is not None:
+            db.session.delete(legacy)
+            existing.discard(email.lower())
+            changed = True
+            print(f"[accounts] retired superseded account {email}")
+
+    # 2. administrators
+    for name, email in ADMIN_ACCOUNTS:
+        if email.lower() in existing:
+            continue
+        db.session.add(
+            AppUser(
+                name=name,
+                email=email,
+                password_hash=generate_password_hash(admin_password, method="pbkdf2:sha256"),
+                role="admin",
+            )
+        )
+        existing.add(email.lower())
+        changed = True
+        print(f"[accounts] provisioned admin {email}")
+
+    # 3. one login per rider on the roster
+    for driver in Driver.query.all():
+        email = driver_email(driver.full_name)
+        if email in existing:
+            continue
+        db.session.add(
+            AppUser(
+                name=driver.full_name,
+                email=email,
+                password_hash=generate_password_hash(driver_password, method="pbkdf2:sha256"),
+                role="driver",
+                driver_id=driver.driver_id,
+            )
+        )
+        existing.add(email)
+        changed = True
+        print(f"[accounts] provisioned driver {email}")
+
+    if changed:
+        db.session.commit()
+
 
 def seed_all() -> None:
     """Populate the database. Assumes empty tables."""
@@ -245,8 +329,8 @@ def seed_all() -> None:
     # Two administrative accounts plus one login per rider on the roster.
     # Passwords come from the environment so a deployment does not have to ship the
     # development defaults — see DEPLOY.md.
-    admin_password = os.getenv("SEED_ADMIN_PASSWORD", "Fleet@2026")
-    driver_password = os.getenv("SEED_DRIVER_PASSWORD", "Rider@2026")
+    admin_password = _admin_password()
+    driver_password = _driver_password()
 
     accounts = [
         AppUser(
@@ -259,11 +343,10 @@ def seed_all() -> None:
     ]
 
     for driver in drivers:
-        local = driver.full_name.lower().replace(" ", ".")
         accounts.append(
             AppUser(
                 name=driver.full_name,
-                email=f"{local}@fleetsme.com",
+                email=driver_email(driver.full_name),
                 password_hash=generate_password_hash(driver_password, method="pbkdf2:sha256"),
                 role="driver",
                 driver_id=driver.driver_id,

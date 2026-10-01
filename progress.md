@@ -709,6 +709,65 @@ and the full table is in `DEPLOY.md`.
 - Local database was **backed up** to `fms.db.backup-<timestamp>` (gitignored) and re-seeded, since
   the previous file predated the new accounts.
 
+---
+
+## 2026-10-01 — Render login failure diagnosed and fixed
+
+Ifeanyi reported that login worked locally but not on Render. Diagnosed against the live
+deployment rather than guessing:
+
+| Check | Result |
+|---|---|
+| `GET /api/health` | ✅ 200 — API up and healthy |
+| `POST /api/auth/login` with the new accounts | ❌ 401 |
+| `POST /api/auth/login` with the **old** accounts | ✅ 200 — the deployment was still accepting `admin@fms.local` |
+| Local `HEAD` vs `origin/main` | ✅ in sync — the correct code **was** deployed |
+
+### Root cause — a flaw in my own design
+
+The database was seeded on first deploy, **before** the accounts were finalised.
+`seed_if_empty()` only ever runs against an empty database, so the real accounts could never reach
+an existing deployment. Redeploying could not fix it, and neither could pushing more code. The only
+recourse would have been deleting the database — losing all data.
+
+### The fix — account provisioning is now idempotent
+
+Added `ensure_accounts()`, which runs on **every** boot, not just the first:
+
+- **Creates anything missing** — admins and one login per rider currently on the roster.
+- **Never touches existing accounts** — passwords are never reset.
+- **Retires the superseded development logins** (`admin@fms.local`, `driver@fms.local`), whose
+  passwords are published in this repository.
+
+So a redeploy now self-heals the deployment. No data loss, no manual database surgery.
+
+### Verified against a replica of the broken state
+Copied the pre-change database (which held exactly the two legacy accounts) and booted the app
+against it, reproducing the Render condition:
+
+```
+BEFORE:  admin admin@fms.local / driver driver@fms.local
+AFTER:   11 accounts — 2 admins + 9 rider logins, legacy accounts retired
+```
+
+Then confirmed by login: `manager@fleetsme.com` ✅, `musa.ibrahim@fleetsme.com` ✅,
+`admin@fms.local` ❌ 401.
+
+### Test added
+A provisioning section in the suite (now **137/137**) covering idempotency, one-login-per-rider,
+the admin roster, that no legacy accounts remain, and that every driver login links to a real
+DRIVER row.
+
+**The test initially failed, and it was right to.** My first assertion checked that
+`ensure_accounts()` changed nothing on a seeded database — but the suite itself adds a rider during
+the FR2 tests, so a new login is *correctly* provisioned for them. Idempotency means the *second*
+call changes nothing; the assertion now says that.
+
+### `DEPLOY.md` updated
+Added the symptom to the troubleshooting table and a short "Already deployed and login is failing?"
+section explaining that a redeploy is the fix and that data is untouched.
+
+
 
 
 
